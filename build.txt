@@ -1,8 +1,9 @@
-author = blushiemagic
-version = 0.4.3.5
-displayName = Magic Storage
+author = Repertoire
+version = 0.1
+displayName = Magic Storage Plus
 homepage = https://forums.terraria.org/index.php?threads/magic-storage.56294/
 hideCode = false
 hideResources = false
 includeSource = true
 buildIgnore = OldArt\*, .git\*
+dllReferences = 0Harmony

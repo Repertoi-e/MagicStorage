@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Terraria;
 
-namespace MagicStorage.Sorting
+namespace MagicStoragePlus.Sorting
 {
     public abstract class ItemFilter
     {
@@ -11,13 +11,9 @@ namespace MagicStorage.Sorting
         public bool Passes(object obj)
         {
             if (obj is Item)
-            {
                 return Passes((Item)obj);
-            }
             if (obj is Recipe)
-            {
                 return Passes(((Recipe)obj).createItem);
-            }
             return false;
         }
     }
@@ -144,7 +140,7 @@ namespace MagicStorage.Sorting
 
     public class FilterMisc : ItemFilter
     {
-        private static List<ItemFilter> blacklist = new List<ItemFilter> {
+        static List<ItemFilter> blacklist = new List<ItemFilter> {
             new FilterWeapon(),
             new FilterTool(),
             new FilterEquipment(),
@@ -155,12 +151,8 @@ namespace MagicStorage.Sorting
         public override bool Passes(Item item)
         {
             foreach (var filter in blacklist)
-            {
                 if (filter.Passes(item))
-                {
                     return false;
-                }
-            }
             return true;
         }
     }

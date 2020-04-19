@@ -2,25 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Threading;
-using Microsoft.Xna.Framework;
 using Terraria;
-using Terraria.DataStructures;
-using Terraria.ID;
-using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
-namespace MagicStorage.Components
+namespace MagicStoragePlus.Components
 {
     public class TEStorageUnit : TEAbstractStorageUnit
     {
-        private IList<Item> items = new List<Item>();
-        private Queue<UnitOperation> netQueue = new Queue<UnitOperation>();
-        private bool receiving = false;
+        IList<Item> items = new List<Item>();
+        Queue<UnitOperation> netQueue = new Queue<UnitOperation>();
+        bool receiving = false;
 
-        //metadata
-        private HashSet<ItemData> hasSpaceInStack = new HashSet<ItemData>();
-        private HashSet<ItemData> hasItem = new HashSet<ItemData>();
+        HashSet<ItemData> hasSpaceInStack = new HashSet<ItemData>();
+        HashSet<ItemData> hasItem = new HashSet<ItemData>();
+        HashSet<int> hasItemNoPrefix = new HashSet<int>();
 
         public int Capacity
         {
@@ -28,53 +23,24 @@ namespace MagicStorage.Components
             {
                 int style = Main.tile[Position.X, Position.Y].frameY / 36;
                 if (style == 8)
-                {
                     return 4;
-                }
+
                 if (style > 1)
-                {
                     style--;
-                }
                 int capacity = style + 1;
                 if (capacity > 4)
-                {
                     capacity++;
-                }
                 if (capacity > 6)
-                {
                     capacity++;
-                }
                 if (capacity > 8)
-                {
                     capacity += 7;
-                }
                 return 40 * capacity;
             }
         }
 
-        public override bool IsFull
-        {
-            get
-            {
-                return items.Count >= Capacity;
-            }
-        }
-
-        public bool IsEmpty
-        {
-            get
-            {
-                return items.Count == 0;
-            }
-        }
-
-        public int NumItems
-        {
-            get
-            {
-                return items.Count;
-            }
-        }
+        public override bool IsFull => items.Count >= Capacity;
+        public bool IsEmpty => items.Count == 0;
+        public int NumItems => items.Count;
 
         public override bool ValidTile(Tile tile)
         {
@@ -84,9 +50,8 @@ namespace MagicStorage.Components
         public override bool HasSpaceInStackFor(Item check, bool locked = false)
         {
             if (Main.netMode == 2 && !locked)
-            {
                 GetHeart().EnterReadLock();
-            }
+
             try
             {
                 ItemData data = new ItemData(check);
@@ -95,9 +60,7 @@ namespace MagicStorage.Components
             finally
             {
                 if (Main.netMode == 2 && !locked)
-                {
                     GetHeart().ExitReadLock();
-                }
             }
         }
 
@@ -106,23 +69,21 @@ namespace MagicStorage.Components
             return !IsFull || HasSpaceInStackFor(check, locked);
         }
 
-        public override bool HasItem(Item check, bool locked = false)
+        public override bool HasItem(Item check, bool locked = false, bool ignorePrefix = false)
         {
             if (Main.netMode == 2 && !locked)
-            {
                 GetHeart().EnterReadLock();
-            }
+
             try
             {
+                if (ignorePrefix) return hasItemNoPrefix.Contains(check.type);
                 ItemData data = new ItemData(check);
                 return hasItem.Contains(data);
             }
             finally
             {
                 if (Main.netMode == 2 && !locked)
-                {
                     GetHeart().ExitReadLock();
-                }
             }
         }
 
@@ -134,13 +95,11 @@ namespace MagicStorage.Components
         public override void DepositItem(Item toDeposit, bool locked = false)
         {
             if (Main.netMode == 1 && !receiving)
-            {
                 return;
-            }
+
             if (Main.netMode == 2 && !locked)
-            {
                 GetHeart().EnterWriteLock();
-            }
+
             try
             {
                 Item original = toDeposit.Clone();
@@ -175,36 +134,30 @@ namespace MagicStorage.Components
                     items.Add(item);
                     toDeposit.SetDefaults(0, true);
                     hasChange = true;
-                    finished = true;
                 }
+
                 if (hasChange && Main.netMode != 1)
                 {
                     if (Main.netMode == 2)
-                    {
                         netQueue.Enqueue(UnitOperation.Deposit.Create(original));
-                    }
                     PostChangeContents();
                 }
             }
             finally
             {
                 if (Main.netMode == 2 && !locked)
-                {
                     GetHeart().ExitWriteLock();
-                }
             }
         }
 
         public override Item TryWithdraw(Item lookFor, bool locked = false)
         {
             if (Main.netMode == 1 && !receiving)
-            {
                 return new Item();
-            }
+
             if (Main.netMode == 2 && !locked)
-            {
                 GetHeart().EnterWriteLock();
-            }
+
             try
             {
                 Item original = lookFor.Clone();
@@ -229,9 +182,7 @@ namespace MagicStorage.Components
                             if (Main.netMode != 1)
                             {
                                 if (Main.netMode == 2)
-                                {
                                     netQueue.Enqueue(UnitOperation.Withdraw.Create(original));
-                                }
                                 PostChangeContents();
                             }
                             return result;
@@ -239,15 +190,12 @@ namespace MagicStorage.Components
                     }
                 }
                 if (result.stack == 0)
-                {
                     return new Item();
-                }
+
                 if (Main.netMode != 1)
                 {
                     if (Main.netMode == 2)
-                    {
                         netQueue.Enqueue(UnitOperation.Withdraw.Create(original));
-                    }
                     PostChangeContents();
                 }
                 return result;
@@ -255,9 +203,7 @@ namespace MagicStorage.Components
             finally
             {
                 if (Main.netMode == 2 && !locked)
-                {
                     GetHeart().ExitWriteLock();
-                }
             }
         }
 
@@ -267,29 +213,19 @@ namespace MagicStorage.Components
             int oldFrame = topLeft.frameX;
             int style;
             if (Main.netMode == 2 && !locked)
-            {
                 GetHeart().EnterReadLock();
-            }
+
             if (IsEmpty)
-            {
-                style = 0;    
-            }
+                style = 0;
             else if (IsFull)
-            {
                 style = 2;
-            }
             else
-            {
                 style = 1;
-            }
+
             if (Main.netMode == 2 && !locked)
-            {
                 GetHeart().ExitReadLock();
-            }
             if (Inactive)
-            {
                 style += 3;
-            }
             style *= 36;
             topLeft.frameX = (short)style;
             Main.tile[Position.X, Position.Y + 1].frameX = (short)style;
@@ -301,9 +237,7 @@ namespace MagicStorage.Components
         public void UpdateTileFrameWithNetSend(bool locked = false)
         {
             if (UpdateTileFrame(locked))
-            {
                 NetMessage.SendTileRange(-1, Position.X, Position.Y, 2, 2);
-            }
         }
 
         //precondition: lock is already taken
@@ -318,6 +252,9 @@ namespace MagicStorage.Components
             dict = unit1.hasItem;
             unit1.hasItem = unit2.hasItem;
             unit2.hasItem = dict;
+            var temp = unit1.hasItemNoPrefix;
+            unit1.hasItemNoPrefix = unit2.hasItemNoPrefix;
+            unit2.hasItemNoPrefix = temp;
             if (Main.netMode == 2)
             {
                 unit1.netQueue.Clear();
@@ -333,17 +270,13 @@ namespace MagicStorage.Components
         internal Item WithdrawStack()
         {
             if (Main.netMode == 1 && !receiving)
-            {
                 return new Item();
-            }
             Item item = items[items.Count - 1];
             items.RemoveAt(items.Count - 1);
             if (Main.netMode != 1)
             {
                 if (Main.netMode == 2)
-                {
                     netQueue.Enqueue(UnitOperation.WithdrawStack.Create());
-                }
                 PostChangeContents();
             }
             return item;
@@ -371,15 +304,12 @@ namespace MagicStorage.Components
                 items.Add(item);
                 ItemData data = new ItemData(item);
                 if (item.stack < item.maxStack)
-                {
                     hasSpaceInStack.Add(data);
-                }
                 hasItem.Add(data);
+                hasItemNoPrefix.Add(data.Type);
             }
             if (Main.netMode == 2)
-            {
                 netQueue.Enqueue(UnitOperation.FullSync.Create());
-            }
         }
 
         public override void NetSend(BinaryWriter trueWriter, bool lightSend)
@@ -402,7 +332,7 @@ namespace MagicStorage.Components
             {
                 netQueue.Dequeue().Send(writer, this);
             }
-            
+
             /* Forces data to be flushed into the compressed buffer */
             writerBuffer.Flush(); compressor.Close();
 
@@ -416,7 +346,7 @@ namespace MagicStorage.Components
                 MemoryStream decompressedBuffer = new MemoryStream(65536);
                 DeflateStream decompressor = new DeflateStream(buffer, CompressionMode.Decompress, true);
                 decompressor.CopyTo(decompressedBuffer);
-                decompressor.Close(); 
+                decompressor.Close();
 
                 Console.WriteLine("Magic Storage Data Compression Stats: " + decompressedBuffer.Length + " => " + buffer.Length);
                 decompressor.Dispose(); decompressedBuffer.Dispose();
@@ -441,12 +371,13 @@ namespace MagicStorage.Components
 
             /* Original code */
             base.NetReceive(reader, lightReceive);
-            if (TileEntity.ByPosition.ContainsKey(Position) && TileEntity.ByPosition[Position] is TEStorageUnit)
+            if (ByPosition.ContainsKey(Position) && ByPosition[Position] is TEStorageUnit)
             {
-                TEStorageUnit other = (TEStorageUnit)TileEntity.ByPosition[Position];
+                TEStorageUnit other = (TEStorageUnit)ByPosition[Position];
                 items = other.items;
                 hasSpaceInStack = other.hasSpaceInStack;
                 hasItem = other.hasItem;
+                hasItemNoPrefix = other.hasItemNoPrefix;
             }
             receiving = true;
             int count = reader.ReadUInt16();
@@ -454,16 +385,12 @@ namespace MagicStorage.Components
             for (int k = 0; k < count; k++)
             {
                 if (UnitOperation.Receive(reader, this))
-                {
                     flag = true;
-                }
             }
             if (flag)
-            {
                 RepairMetadata();
-            }
             receiving = false;
-            
+
             /* Dispose all objects */
             reader.Dispose(); decompressor.Dispose(); bufferWriter.Dispose(); buffer.Dispose();
         }
@@ -473,20 +400,21 @@ namespace MagicStorage.Components
             items.Clear();
             hasSpaceInStack.Clear();
             hasItem.Clear();
+            hasItemNoPrefix.Clear();
         }
 
         private void RepairMetadata()
         {
             hasSpaceInStack.Clear();
             hasItem.Clear();
+            hasItemNoPrefix.Clear();
             foreach (Item item in items)
             {
                 ItemData data = new ItemData(item);
                 if (item.stack < item.maxStack)
-                {
                     hasSpaceInStack.Add(data);
-                }
                 hasItem.Add(data);
+                hasItemNoPrefix.Add(data.Type);
             }
         }
 
@@ -512,9 +440,7 @@ namespace MagicStorage.Components
                 types.Add(Withdraw);
                 types.Add(WithdrawStack);
                 for (int k = 0; k < types.Count; k++)
-                {
                     types[k].id = (byte)k;
-                }
             }
 
             protected byte id;
@@ -578,6 +504,7 @@ namespace MagicStorage.Components
                         unit.hasSpaceInStack.Add(data);
                     }
                     unit.hasItem.Add(data);
+                    unit.hasItemNoPrefix.Add(data.Type);
                 }
                 return false;
             }

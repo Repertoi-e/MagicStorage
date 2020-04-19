@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.DataStructures;
@@ -6,7 +5,7 @@ using Terraria.ModLoader;
 using Terraria.ObjectData;
 using Microsoft.Xna.Framework;
 
-namespace MagicStorage.Components
+namespace MagicStoragePlus.Components
 {
     public class StorageConnector : ModTile
     {
@@ -39,9 +38,7 @@ namespace MagicStorage.Components
             explored.Add(startSearch);
             Queue<Point16> toExplore = new Queue<Point16>();
             foreach (Point16 point in TEStorageComponent.AdjacentComponents(startSearch))
-            {
                 toExplore.Enqueue(point);
-            }
 
             while (toExplore.Count > 0)
             {
@@ -53,14 +50,10 @@ namespace MagicStorage.Components
                     {
                         count++;
                         if (count >= 2)
-                        {
                             return -1;
-                        }
                     }
                     foreach (Point16 point in TEStorageComponent.AdjacentComponents(explore))
-                    {
                         toExplore.Enqueue(point);
-                    }
                 }
             }
             return count;
@@ -83,21 +76,13 @@ namespace MagicStorage.Components
             int frameX = 0;
             int frameY = 0;
             if (WorldGen.InWorld(i - 1, j) && Main.tile[i - 1, j].active() && Main.tile[i - 1, j].type == Type)
-            {
                 frameX += 18;
-            }
             if (WorldGen.InWorld(i + 1, j) && Main.tile[i + 1, j].active() && Main.tile[i + 1, j].type == Type)
-            {
                 frameX += 36;
-            }
             if (WorldGen.InWorld(i, j - 1) && Main.tile[i, j - 1].active() && Main.tile[i, j - 1].type == Type)
-            {
                 frameY += 18;
-            }
             if (WorldGen.InWorld(i, j + 1) && Main.tile[i, j + 1].active() && Main.tile[i, j + 1].type == Type)
-            {
                 frameY += 36;
-            }
             Main.tile[i, j].frameX = (short)frameX;
             Main.tile[i, j].frameY = (short)frameY;
             return false;
@@ -106,18 +91,12 @@ namespace MagicStorage.Components
         public override void KillTile(int i, int j, ref bool fail, ref bool effectOnly, ref bool noItem)
         {
             if (fail || effectOnly)
-            {
                 return;
-            }
             StorageComponent.killTile = new Point16(i, j);
             if (Main.netMode == 1)
-            {
                 NetHelper.SendSearchAndRefresh(StorageComponent.killTile.X, StorageComponent.killTile.Y);
-            }
             else
-            {
                 TEStorageComponent.SearchAndRefreshNetwork(StorageComponent.killTile);
-            }
             StorageComponent.killTile = new Point16(-1, -1);
         }
     }

@@ -1,41 +1,26 @@
-using System;
-using System.Collections.Generic;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.GameInput;
 using Terraria.ID;
 using Terraria.Localization;
-using Terraria.ModLoader;
-using Terraria.ObjectData;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace MagicStorage.Components
+namespace MagicStoragePlus.Components
 {
     public class StorageAccess : StorageComponent
     {
-        public override int ItemType(int frameX, int frameY)
-        {
-            return mod.ItemType("StorageAccess");
-        }
-
-        public override bool HasSmartInteract()
-        {
-            return true;
-        }
+        public override int ItemType(int frameX, int frameY) => mod.ItemType("StorageAccess");
+        public override bool HasSmartInteract() => true;
 
         public virtual TEStorageHeart GetHeart(int i, int j)
         {
             Point16 point = TEStorageComponent.FindStorageCenter(new Point16(i, j));
             if (point.X < 0 || point.Y < 0 || !TileEntity.ByPosition.ContainsKey(point))
-            {
                 return null;
-            }
             TileEntity heart = TileEntity.ByPosition[point];
             if (!(heart is TEStorageCenter))
-            {
                 return null;
-            }
             return ((TEStorageCenter)heart).GetHeart();
         }
 
@@ -51,13 +36,10 @@ namespace MagicStorage.Components
         public override bool NewRightClick(int i, int j)
         {
             if (Main.tile[i, j].frameX % 36 == 18)
-            {
                 i--;
-            }
             if (Main.tile[i, j].frameY % 36 == 18)
-            {
                 j--;
-            }
+            
             Player player = Main.player[Main.myPlayer];
             if (GetHeart(i, j) == null)
             {
@@ -94,7 +76,7 @@ namespace MagicStorage.Components
             player.chest = -1;
             Main.stackSplit = 600;
             Point16 toOpen = new Point16(i, j);
-            Point16 prevOpen = modPlayer.ViewingStorage();
+            Point16 prevOpen = modPlayer.StorageAccess;
             if (prevOpen == toOpen)
             {
                 modPlayer.CloseStorage();
@@ -107,10 +89,7 @@ namespace MagicStorage.Components
                 modPlayer.OpenStorage(toOpen);
                 modPlayer.timeSinceOpen = 0;
                 if (PlayerInput.GrappleAndInteractAreShared)
-                {
                     PlayerInput.Triggers.JustPressed.Grapple = false;
-                }
-                Main.recBigList = false;
                 Main.PlaySound(hadChestOpen || hadOtherOpen ? 12 : 10, -1, -1, 1);
                 Recipe.FindRecipes();
             }

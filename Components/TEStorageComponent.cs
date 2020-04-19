@@ -1,11 +1,9 @@
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.DataStructures;
-using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace MagicStorage.Components
+namespace MagicStoragePlus.Components
 {
     public abstract class TEStorageComponent : ModTileEntity
     {
@@ -25,7 +23,7 @@ namespace MagicStorage.Components
                 return -1;
             }
             int id = Place(i - 1, j - 1);
-            ((TEStorageComponent)TileEntity.ByID[id]).OnPlace();
+            ((TEStorageComponent)ByID[id]).OnPlace();
             return id;
         }
 
@@ -54,7 +52,7 @@ namespace MagicStorage.Components
             }
             else
             {
-                TEStorageComponent.SearchAndRefreshNetwork(Position);
+                SearchAndRefreshNetwork(Position);
             }
         }
 
@@ -86,39 +84,31 @@ namespace MagicStorage.Components
         public static IEnumerable<Point16> AdjacentComponents(Point16 point)
         {
             List<Point16> points = new List<Point16>();
-            bool isConnector = Main.tile[point.X, point.Y].type == MagicStorage.Instance.TileType("StorageConnector");
+            bool isConnector = Main.tile[point.X, point.Y].type == MagicStoragePlus.Instance.TileType("StorageConnector");
             foreach (Point16 add in (isConnector ? checkNeighbors1x1 : checkNeighbors))
             {
                 int checkX = point.X + add.X;
                 int checkY = point.Y + add.Y;
                 Tile tile = Main.tile[checkX, checkY];
                 if (!tile.active())
-                {
                     continue;
-                }
+
                 if (TileLoader.GetTile(tile.type) is StorageComponent)
                 {
                     if (tile.frameX % 36 == 18)
-                    {
                         checkX--;
-                    }
                     if (tile.frameY % 36 == 18)
-                    {
                         checkY--;
-                    }
+
                     Point16 check = new Point16(checkX, checkY);
                     if (!points.Contains(check))
-                    {
                         points.Add(check);
-                    }
                 }
-                else if (tile.type == MagicStorage.Instance.TileType("StorageConnector"))
+                else if (tile.type == MagicStoragePlus.Instance.TileType("StorageConnector"))
                 {
                     Point16 check = new Point16(checkX, checkY);
                     if (!points.Contains(check))
-                    {
                         points.Add(check);
-                    }
                 }
             }
             return points;
@@ -130,9 +120,7 @@ namespace MagicStorage.Components
             explored.Add(startSearch);
             Queue<Point16> toExplore = new Queue<Point16>();
             foreach (Point16 point in AdjacentComponents(startSearch))
-            {
                 toExplore.Enqueue(point);
-            }
 
             while (toExplore.Count > 0)
             {
@@ -141,13 +129,9 @@ namespace MagicStorage.Components
                 {
                     explored.Add(explore);
                     if (TEStorageCenter.IsStorageCenter(explore))
-                    {
                         return explore;
-                    }
                     foreach (Point16 point in AdjacentComponents(explore))
-                    {
                         toExplore.Enqueue(point);
-                    }
                 }
             }
             return new Point16(-1, -1);
@@ -164,7 +148,7 @@ namespace MagicStorage.Components
             Point16 center = FindStorageCenter(position);
             if (center.X >= 0 && center.Y >= 0)
             {
-                TEStorageCenter centerEnt = (TEStorageCenter)TileEntity.ByPosition[center];
+                TEStorageCenter centerEnt = (TEStorageCenter)ByPosition[center];
                 centerEnt.ResetAndSearch();
             }
         }

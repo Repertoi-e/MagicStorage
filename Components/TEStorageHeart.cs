@@ -1,17 +1,12 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.DataStructures;
-using Terraria.ID;
-using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
-namespace MagicStorage.Components
+namespace MagicStoragePlus.Components
 {
     public class TEStorageHeart : TEStorageCenter
     {
@@ -25,17 +20,14 @@ namespace MagicStorage.Components
             return tile.type == mod.TileType("StorageHeart") && tile.frameX == 0 && tile.frameY == 0;
         }
 
-        public override TEStorageHeart GetHeart()
-        {
-            return this;
-        }
+        public override TEStorageHeart GetHeart() => this;
 
         public IEnumerable<TEAbstractStorageUnit> GetStorageUnits()
         {
-            return storageUnits.Concat(remoteAccesses.Where(remoteAccess => TileEntity.ByPosition.ContainsKey(remoteAccess) && TileEntity.ByPosition[remoteAccess] is TERemoteAccess)
-                .SelectMany(remoteAccess => ((TERemoteAccess)TileEntity.ByPosition[remoteAccess]).storageUnits))
-                .Where(storageUnit => TileEntity.ByPosition.ContainsKey(storageUnit) && TileEntity.ByPosition[storageUnit] is TEAbstractStorageUnit)
-                .Select(storageUnit => (TEAbstractStorageUnit)TileEntity.ByPosition[storageUnit]);
+            return storageUnits.Concat(remoteAccesses.Where(remoteAccess => ByPosition.ContainsKey(remoteAccess) && ByPosition[remoteAccess] is TERemoteAccess)
+                .SelectMany(remoteAccess => ((TERemoteAccess)ByPosition[remoteAccess]).storageUnits))
+                .Where(storageUnit => ByPosition.ContainsKey(storageUnit) && ByPosition[storageUnit] is TEAbstractStorageUnit)
+                .Select(storageUnit => (TEAbstractStorageUnit)ByPosition[storageUnit]);
         }
 
         public IEnumerable<Item> GetStoredItems()
@@ -67,16 +59,15 @@ namespace MagicStorage.Components
         {
             for (int k = 0; k < remoteAccesses.Count; k++)
             {
-                if (!TileEntity.ByPosition.ContainsKey(remoteAccesses[k]) || !(TileEntity.ByPosition[remoteAccesses[k]] is TERemoteAccess))
+                if (!ByPosition.ContainsKey(remoteAccesses[k]) || !(ByPosition[remoteAccesses[k]] is TERemoteAccess))
                 {
                     remoteAccesses.RemoveAt(k);
                     k--;
                 }
             }
             if (Main.netMode == 1)
-            {
                 return;
-            }
+
             updateTimer++;
             if (updateTimer >= 60)
             {
@@ -90,9 +81,7 @@ namespace MagicStorage.Components
                     finally
                     {
                         if (Main.netMode == 2)
-                        {
                             itemsLock.ExitWriteLock();
-                        }
                     }
                 }
             }
@@ -102,17 +91,11 @@ namespace MagicStorage.Components
         public void CompactOne()
         {
             if (compactStage == 0)
-            {
                 EmptyInactive();
-            }
             else if (compactStage == 1)
-            {
                 Defragment();
-            }
             else if (compactStage == 2)
-            {
                 PackItems();
-            }
         }
 
         //precondition: lock is already taken
@@ -122,14 +105,11 @@ namespace MagicStorage.Components
             foreach (TEAbstractStorageUnit abstractStorageUnit in GetStorageUnits())
             {
                 if (!(abstractStorageUnit is TEStorageUnit))
-                {
                     continue;
-                }
+
                 TEStorageUnit storageUnit = (TEStorageUnit)abstractStorageUnit;
                 if (storageUnit.Inactive && !storageUnit.IsEmpty)
-                {
                     inactiveUnit = storageUnit;
-                }
             }
             if (inactiveUnit == null)
             {
@@ -139,9 +119,8 @@ namespace MagicStorage.Components
             foreach (TEAbstractStorageUnit abstractStorageUnit in GetStorageUnits())
             {
                 if (!(abstractStorageUnit is TEStorageUnit) || abstractStorageUnit.Inactive)
-                {
                     continue;
-                }
+
                 TEStorageUnit storageUnit = (TEStorageUnit)abstractStorageUnit;
                 if (storageUnit.IsEmpty && inactiveUnit.NumItems <= storageUnit.Capacity)
                 {
@@ -150,52 +129,43 @@ namespace MagicStorage.Components
                     return true;
                 }
             }
+
             bool hasChange = false;
             NetHelper.StartUpdateQueue();
             Item tryMove = inactiveUnit.WithdrawStack();
             foreach (TEAbstractStorageUnit abstractStorageUnit in GetStorageUnits())
             {
                 if (!(abstractStorageUnit is TEStorageUnit) || abstractStorageUnit.Inactive)
-                {
                     continue;
-                }
                 TEStorageUnit storageUnit = (TEStorageUnit)abstractStorageUnit;
                 while (storageUnit.HasSpaceFor(tryMove, true) && !tryMove.IsAir)
                 {
                     storageUnit.DepositItem(tryMove, true);
                     if (tryMove.IsAir && !inactiveUnit.IsEmpty)
-                    {
                         tryMove = inactiveUnit.WithdrawStack();
-                    }
                     hasChange = true;
                 }
             }
             if (!tryMove.IsAir)
-            {
                 inactiveUnit.DepositItem(tryMove, true);
-            }
+
             NetHelper.ProcessUpdateQueue();
             if (hasChange)
-            {
                 NetHelper.SendRefreshNetworkItems(ID);
-            }
             else
-            {
                 compactStage++;
-            }
             return hasChange;
         }
 
-        //precondition: lock is already taken
+        // Precondition: lock is already taken
         public bool Defragment()
         {
             TEStorageUnit emptyUnit = null;
             foreach (TEAbstractStorageUnit abstractStorageUnit in GetStorageUnits())
             {
                 if (!(abstractStorageUnit is TEStorageUnit))
-                {
                     continue;
-                }
+
                 TEStorageUnit storageUnit = (TEStorageUnit)abstractStorageUnit;
                 if (emptyUnit == null && storageUnit.IsEmpty && !storageUnit.Inactive)
                 {
@@ -212,16 +182,15 @@ namespace MagicStorage.Components
             return false;
         }
 
-        //precondition: lock is already taken
+        // Precondition: lock is already taken
         public bool PackItems()
         {
             TEStorageUnit unitWithSpace = null;
             foreach (TEAbstractStorageUnit abstractStorageUnit in GetStorageUnits())
             {
                 if (!(abstractStorageUnit is TEStorageUnit))
-                {
                     continue;
-                }
+
                 TEStorageUnit storageUnit = (TEStorageUnit)abstractStorageUnit;
                 if (unitWithSpace == null && !storageUnit.IsFull && !storageUnit.Inactive)
                 {
@@ -251,17 +220,14 @@ namespace MagicStorage.Components
         public void ResetCompactStage(int stage = 0)
         {
             if (stage < compactStage)
-            {
                 compactStage = stage;
-            }
         }
 
         public void DepositItem(Item toDeposit)
         {
             if (Main.netMode == 2)
-            {
                 EnterWriteLock();
-            }
+
             int oldStack = toDeposit.stack;
             try
             {
@@ -271,9 +237,7 @@ namespace MagicStorage.Components
                     {
                         storageUnit.DepositItem(toDeposit, true);
                         if (toDeposit.IsAir)
-                        {
                             return;
-                        }
                     }
                 }
                 foreach (TEAbstractStorageUnit storageUnit in GetStorageUnits())
@@ -282,35 +246,48 @@ namespace MagicStorage.Components
                     {
                         storageUnit.DepositItem(toDeposit, true);
                         if (toDeposit.IsAir)
-                        {
                             return;
-                        }
                     }
                 }
             }
             finally
             {
                 if (oldStack != toDeposit.stack)
-                {
                     ResetCompactStage();
-                }
                 if (Main.netMode == 2)
-                {
                     ExitWriteLock();
+            }
+        }
+
+        public bool HasItem(Item lookFor, bool ignorePrefix = false)
+        {
+            if (Main.netMode == 2)
+                EnterReadLock();
+
+            try
+            {
+                foreach (TEAbstractStorageUnit storageUnit in GetStorageUnits())
+                {
+                    if (storageUnit.HasItem(lookFor, true, ignorePrefix))
+                        return true;
                 }
+                return false;
+            }
+            finally
+            {
+                if (Main.netMode == 2)
+                    ExitReadLock();
             }
         }
 
         public Item TryWithdraw(Item lookFor)
         {
             if (Main.netMode == 1)
-            {
                 return new Item();
-            }
+
             if (Main.netMode == 2)
-            {
                 EnterWriteLock();
-            }
+
             try
             {
                 Item result = new Item();
@@ -338,17 +315,13 @@ namespace MagicStorage.Components
                     }
                 }
                 if (result.stack > 0)
-                {
                     ResetCompactStage();
-                }
                 return result;
             }
             finally
             {
                 if (Main.netMode == 2)
-                {
                     ExitWriteLock();
-                }
             }
         }
 
@@ -371,9 +344,7 @@ namespace MagicStorage.Components
         {
             base.Load(tag);
             foreach (TagCompound tagRemote in tag.GetList<TagCompound>("RemoteAccesses"))
-            {
                 remoteAccesses.Add(new Point16(tagRemote.GetShort("X"), tagRemote.GetShort("Y")));
-            }
         }
 
         public override void NetSend(BinaryWriter writer, bool lightSend)
@@ -392,9 +363,7 @@ namespace MagicStorage.Components
             base.NetReceive(reader, lightReceive);
             int count = reader.ReadInt16();
             for (int k = 0; k < count; k++)
-            {
                 remoteAccesses.Add(new Point16(reader.ReadInt16(), reader.ReadInt16()));
-            }
         }
     }
 }

@@ -1,14 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Xna.Framework;
-using Terraria;
 using Terraria.DataStructures;
-using Terraria.ID;
-using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
-namespace MagicStorage.Components
+namespace MagicStoragePlus.Components
 {
     public abstract class TEStoragePoint : TEStorageComponent
     {
@@ -23,9 +18,7 @@ namespace MagicStorage.Components
             explored.Add(Position);
             Queue<Point16> toExplore = new Queue<Point16>();
             foreach (Point16 point in AdjacentComponents())
-            {
                 toExplore.Enqueue(point);
-            }
 
             while (toExplore.Count > 0)
             {
@@ -39,16 +32,12 @@ namespace MagicStorage.Components
                         break;
                     }
                     foreach (Point16 point in AdjacentComponents(explore))
-                    {
                         toExplore.Enqueue(point);
-                    }
                 }
             }
 
             if (center != oldCenter)
-            {
                 NetHelper.SendTEUpdate(ID, Position);
-            }
         }
 
         public override void OnPlace()
@@ -71,15 +60,13 @@ namespace MagicStorage.Components
         public TEStorageHeart GetHeart()
         {
             if (center != new Point16(-1, -1))
-            {
-                return ((TEStorageCenter)TileEntity.ByPosition[center]).GetHeart();
-            }
+                return ((TEStorageCenter)ByPosition[center]).GetHeart();
             return null;
         }
 
         public static bool IsStoragePoint(Point16 point)
         {
-            return TileEntity.ByPosition.ContainsKey(point) && TileEntity.ByPosition[point] is TEStoragePoint;
+            return ByPosition.ContainsKey(point) && ByPosition[point] is TEStoragePoint;
         }
 
         public override TagCompound Save()

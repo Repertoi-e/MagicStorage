@@ -1,13 +1,9 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 using Terraria;
-using Terraria.DataStructures;
 using Terraria.ID;
-using Terraria.ModLoader;
 
-namespace MagicStorage.Components
+namespace MagicStoragePlus.Components
 {
     public class TECreativeStorageUnit : TEAbstractStorageUnit
     {
@@ -29,7 +25,7 @@ namespace MagicStorage.Components
             return false;
         }
 
-        public override bool HasItem(Item check, bool locked = false)
+        public override bool HasItem(Item check, bool locked = false, bool ignorePrefix = false)
         {
             return !Inactive;
         }

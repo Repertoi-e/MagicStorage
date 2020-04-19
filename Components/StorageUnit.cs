@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
@@ -7,7 +5,7 @@ using Terraria.ObjectData;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace MagicStorage.Components
+namespace MagicStoragePlus.Components
 {
     public class StorageUnit : StorageComponent
     {
@@ -34,33 +32,33 @@ namespace MagicStorage.Components
             int type;
             switch (style)
             {
-            case 1:
-                type = mod.ItemType("StorageUnitDemonite");
-                break;
-            case 2:
-                type = mod.ItemType("StorageUnitCrimtane");
-                break;
-            case 3:
-                type = mod.ItemType("StorageUnitHellstone");
-                break;
-            case 4:
-                type = mod.ItemType("StorageUnitHallowed");
-                break;
-            case 5:
-                type = mod.ItemType("StorageUnitBlueChlorophyte");
-                break;
-            case 6:
-                type = mod.ItemType("StorageUnitLuminite");
-                break;
-            case 7:
-                type = mod.ItemType("StorageUnitTerra");
-                break;
-            case 8:
-                type = mod.ItemType("StorageUnitTiny");
-                break;
-            default:
-                type = mod.ItemType("StorageUnit");
-                break;
+                case 1:
+                    type = mod.ItemType("StorageUnitDemonite");
+                    break;
+                case 2:
+                    type = mod.ItemType("StorageUnitCrimtane");
+                    break;
+                case 3:
+                    type = mod.ItemType("StorageUnitHellstone");
+                    break;
+                case 4:
+                    type = mod.ItemType("StorageUnitHallowed");
+                    break;
+                case 5:
+                    type = mod.ItemType("StorageUnitBlueChlorophyte");
+                    break;
+                case 6:
+                    type = mod.ItemType("StorageUnitLuminite");
+                    break;
+                case 7:
+                    type = mod.ItemType("StorageUnitTerra");
+                    break;
+                case 8:
+                    type = mod.ItemType("StorageUnitTiny");
+                    break;
+                default:
+                    type = mod.ItemType("StorageUnit");
+                    break;
             }
             return type;
         }
@@ -81,17 +79,12 @@ namespace MagicStorage.Components
         public override bool NewRightClick(int i, int j)
         {
             if (Main.tile[i, j].frameX % 36 == 18)
-            {
                 i--;
-            }
             if (Main.tile[i, j].frameY % 36 == 18)
-            {
                 j--;
-            }
             if (TryUpgrade(i, j))
-            {
                 return true;
-            }
+
             TEStorageUnit storageUnit = (TEStorageUnit)TileEntity.ByPosition[new Point16(i, j)];
             Main.player[Main.myPlayer].tileInteractionHappened = true;
             string activeString = storageUnit.Inactive ? "Inactive" : "Active";
@@ -150,23 +143,15 @@ namespace MagicStorage.Components
                 if (heart != null)
                 {
                     if (Main.netMode == 0)
-                    {
                         heart.ResetCompactStage();
-                    }
                     else if (Main.netMode == 1)
-                    {
                         NetHelper.SendResetCompactStage(heart.ID);
-                    }
                 }
                 item.stack--;
                 if (item.stack <= 0)
-                {
                     item.SetDefaults(0);
-                }
                 if (player.selectedItem == 58)
-                {
                     Main.mouseItem = item.Clone();
-                }
             }
             return success;
         }

@@ -1,10 +1,9 @@
-﻿using System;
-using Terraria;
+﻿using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Localization;
 
-namespace MagicStorage.Items
+namespace MagicStoragePlus.Items
 {
     public class UpgradeBlueChlorophyte : ModItem
     {
@@ -46,14 +45,10 @@ namespace MagicStorage.Items
             recipe.AddIngredient(ItemID.ShroomiteBar, 5);
             recipe.AddIngredient(ItemID.SpectreBar, 5);
             recipe.AddIngredient(ItemID.BeetleHusk, 2);
-            if (MagicStorage.legendMod == null)
-            {
+            if (MagicStoragePlus.LegendMod == null)
                 recipe.AddIngredient(ItemID.Emerald);
-            }
             else
-            {
-                recipe.AddRecipeGroup("MagicStorage:AnyEmerald");
-            }
+                recipe.AddRecipeGroup("MagicStoragePlus:AnyEmerald");
             recipe.AddTile(TileID.MythrilAnvil);
             recipe.SetResult(this);
             recipe.AddRecipe();

@@ -1,15 +1,9 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Xna.Framework;
 using Terraria;
-using Terraria.DataStructures;
-using Terraria.ID;
-using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
-namespace MagicStorage.Components
+namespace MagicStoragePlus.Components
 {
     public class TECraftingAccess : TEStorageComponent
     {
@@ -18,9 +12,7 @@ namespace MagicStorage.Components
         public TECraftingAccess()
         {
             for (int k = 0; k < 10; k++)
-            {
                 stations[k] = new Item();
-            }
         }
 
         public override bool ValidTile(Tile tile)
@@ -31,16 +23,14 @@ namespace MagicStorage.Components
         public void TryDepositStation(Item item)
         {
             if (Main.netMode == 1)
-            {
                 return;
-            }
+
             foreach (Item station in stations)
             {
                 if (station.type == item.type)
-                {
                     return;
-                }
             }
+
             for (int k = 0; k < stations.Length; k++)
             {
                 if (stations[k].IsAir)
@@ -49,9 +39,7 @@ namespace MagicStorage.Components
                     stations[k].stack = 1;
                     item.stack--;
                     if (item.stack <= 0)
-                    {
                         item.SetDefaults(0);
-                    }
                     NetHelper.SendTEUpdate(ID, Position);
                     return;
                 }
@@ -61,9 +49,8 @@ namespace MagicStorage.Components
         public Item TryWithdrawStation(int slot)
         {
             if (Main.netMode == 1)
-            {
                 return new Item();
-            }
+
             if (!stations[slot].IsAir)
             {
                 Item item = stations[slot];
@@ -77,17 +64,14 @@ namespace MagicStorage.Components
         public Item DoStationSwap(Item item, int slot)
         {
             if (Main.netMode == 1)
-            {
                 return new Item();
-            }
+
             if (!item.IsAir)
             {
                 for (int k = 0; k < stations.Length; k++)
                 {
                     if (k != slot && stations[k].type == item.type)
-                    {
                         return item;
-                    }
                 }
             }
             if ((item.IsAir || item.stack == 1) && !stations[slot].IsAir)
@@ -104,9 +88,7 @@ namespace MagicStorage.Components
                 stations[slot].stack = 1;
                 item.stack--;
                 if (item.stack <= 0)
-                {
                     item.SetDefaults(0);
-                }
                 NetHelper.SendTEUpdate(ID, Position);
                 return item;
             }
@@ -118,9 +100,7 @@ namespace MagicStorage.Components
             TagCompound tag = new TagCompound();
             IList<TagCompound> listStations = new List<TagCompound>();
             foreach (Item item in stations)
-            {
                 listStations.Add(ItemIO.Save(item));
-            }
             tag["Stations"] = listStations;
             return tag;
         }
@@ -131,26 +111,20 @@ namespace MagicStorage.Components
             if (listStations != null && listStations.Count > 0)
             {
                 for (int k = 0; k < stations.Length; k++)
-                {
                     stations[k] = ItemIO.Load(listStations[k]);
-                }
             }
         }
 
         public override void NetSend(BinaryWriter writer, bool lightSend)
         {
             foreach (Item item in stations)
-            {
                 ItemIO.Send(item, writer, true, false);
-            }
         }
 
         public override void NetReceive(BinaryReader reader, bool lightReceive)
         {
             for (int k = 0; k < stations.Length; k++)
-            {
                 stations[k] = ItemIO.Receive(reader, true, false);
-            }
         }
     }
 }

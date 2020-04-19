@@ -1,10 +1,8 @@
-﻿using System;
-using Terraria;
-using Terraria.ID;
+﻿using Terraria;
 using Terraria.ModLoader;
 using Terraria.Localization;
 
-namespace MagicStorage.Items
+namespace MagicStoragePlus.Items
 {
     public class StorageUnitHallowed : ModItem
     {

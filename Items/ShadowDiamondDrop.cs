@@ -1,11 +1,8 @@
-using System;
-using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.GameContent.Events;
 
-namespace MagicStorage.NPCs
+namespace MagicStoragePlus.NPCs
 {
     public class ShadowDiamondDrop : GlobalNPC
     {

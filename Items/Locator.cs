@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using Terraria;
 using Terraria.DataStructures;
@@ -8,19 +7,13 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Terraria.Localization;
 
-namespace MagicStorage.Items
+namespace MagicStoragePlus.Items
 {
     public class Locator : ModItem
     {
         public Point16 location = new Point16(-1, -1);
 
-        public override bool CloneNewInstances
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public override bool CloneNewInstances => true;
 
         public override void SetStaticDefaults()
         {
@@ -61,7 +54,7 @@ namespace MagicStorage.Items
             {
                 if (isSet && lines[k].mod == "Terraria" && lines[k].Name == "Tooltip0")
                 {
-                    lines[k].text = Language.GetTextValue("Mods.MagicStorage.SetTo", location.X, location.Y);
+                    lines[k].text = Language.GetTextValue("Mods.MagicStoragePlus.SetTo", location.X, location.Y);
                 }
                 else if (!isSet && lines[k].mod == "Terraria" && lines[k].Name == "Tooltip1")
                 {

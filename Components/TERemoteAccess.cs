@@ -1,15 +1,9 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.DataStructures;
-using Terraria.ID;
-using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
-namespace MagicStorage.Components
+namespace MagicStoragePlus.Components
 {
     public class TERemoteAccess : TEStorageCenter
     {
@@ -22,11 +16,9 @@ namespace MagicStorage.Components
 
         public override TEStorageHeart GetHeart()
         {
-            if (locator.X < 0 || locator.Y < 0 || !TileEntity.ByPosition.ContainsKey(locator))
-            {
+            if (locator.X < 0 || locator.Y < 0 || !ByPosition.ContainsKey(locator))
                 return null;
-            }
-            return TileEntity.ByPosition[locator] as TEStorageHeart;
+            return ByPosition[locator] as TEStorageHeart;
         }
 
         public bool TryLocate(Point16 toLocate, out string message)
@@ -51,9 +43,7 @@ namespace MagicStorage.Components
         {
             TEStorageHeart heart = GetHeart();
             if (heart != null && !heart.remoteAccesses.Contains(Position))
-            {
                 heart.remoteAccesses.Add(Position);
-            }
         }
 
         public override TagCompound Save()

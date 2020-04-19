@@ -1,25 +1,14 @@
-using System;
-using System.Collections.Generic;
 using Terraria;
-using Terraria.DataStructures;
 using Terraria.ModLoader;
-using Terraria.ObjectData;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace MagicStorage.Components
+namespace MagicStoragePlus.Components
 {
     public class CreativeStorageUnit : StorageComponent
     {
-        public override ModTileEntity GetTileEntity()
-        {
-            return mod.GetTileEntity("TECreativeStorageUnit");
-        }
-
-        public override int ItemType(int frameX, int frameY)
-        {
-            return mod.ItemType("CreativeStorageUnit");
-        }
+        public override ModTileEntity GetTileEntity() => mod.GetTileEntity("TECreativeStorageUnit");
+        public override int ItemType(int frameX, int frameY) => mod.ItemType("CreativeStorageUnit");
 
         public override void PostDraw(int i, int j, SpriteBatch spriteBatch)
         {

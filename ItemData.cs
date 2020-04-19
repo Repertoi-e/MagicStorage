@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using Terraria;
-using Terraria.ModLoader;
 
-namespace MagicStorage
+namespace MagicStoragePlus
 {
     public struct ItemData
     {
@@ -12,14 +10,14 @@ namespace MagicStorage
 
         public ItemData(int type, int prefix = 0)
         {
-            this.Type = type;
-            this.Prefix = prefix;
+            Type = type;
+            Prefix = prefix;
         }
 
         public ItemData(Item item)
         {
-            this.Type = item.netID;
-            this.Prefix = item.prefix;
+            Type = item.netID;
+            Prefix = item.prefix;
         }
 
         public override bool Equals(Object other)
@@ -51,9 +49,7 @@ namespace MagicStorage
             ItemData data1 = new ItemData(item1);
             ItemData data2 = new ItemData(item2);
             if (data1.Type != data2.Type)
-            {
                 return data1.Type - data2.Type;
-            }
             return data1.Prefix - data2.Prefix;
         }
     }

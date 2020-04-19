@@ -1,10 +1,9 @@
-﻿using System;
-using Terraria;
+﻿using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Localization;
 
-namespace MagicStorage.Items
+namespace MagicStoragePlus.Items
 {
     public class UpgradeHellstone : ModItem
     {
@@ -44,14 +43,10 @@ namespace MagicStorage.Items
         {
             ModRecipe recipe = new ModRecipe(mod);
             recipe.AddIngredient(ItemID.HellstoneBar, 10);
-            if (MagicStorage.legendMod == null)
-            {
+            if (MagicStoragePlus.LegendMod == null)
                 recipe.AddIngredient(ItemID.Topaz);
-            }
             else
-            {
-                recipe.AddRecipeGroup("MagicStorage:AnyTopaz");
-            }
+                recipe.AddRecipeGroup("MagicStoragePlus:AnyTopaz");
             recipe.AddTile(TileID.Anvils);
             recipe.SetResult(this);
             recipe.AddRecipe();

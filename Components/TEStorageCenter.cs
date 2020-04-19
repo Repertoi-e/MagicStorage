@@ -8,7 +8,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
-namespace MagicStorage.Components
+namespace MagicStoragePlus.Components
 {
     public abstract class TEStorageCenter : TEStorageComponent
     {
@@ -23,18 +23,16 @@ namespace MagicStorage.Components
             explored.Add(Position);
             Queue<Point16> toExplore = new Queue<Point16>();
             foreach (Point16 point in AdjacentComponents())
-            {
                 toExplore.Enqueue(point);
-            }
-            bool changed = false;
 
+            bool changed = false;
             while (toExplore.Count > 0)
             {
                 Point16 explore = toExplore.Dequeue();
                 if (!explored.Contains(explore) && explore != StorageComponent.killTile)
                 {
                     explored.Add(explore);
-                    if (TileEntity.ByPosition.ContainsKey(explore) && TileEntity.ByPosition[explore] is TEAbstractStorageUnit)
+                    if (ByPosition.ContainsKey(explore) && ByPosition[explore] is TEAbstractStorageUnit)
                     {
                         TEAbstractStorageUnit storageUnit = (TEAbstractStorageUnit)TileEntity.ByPosition[explore];
                         if (storageUnit.Link(Position))
@@ -56,9 +54,9 @@ namespace MagicStorage.Components
             {
                 if (!hashStorageUnits.Contains(oldStorageUnit))
                 {
-                    if (TileEntity.ByPosition.ContainsKey(oldStorageUnit) && TileEntity.ByPosition[oldStorageUnit] is TEAbstractStorageUnit)
+                    if (ByPosition.ContainsKey(oldStorageUnit) && ByPosition[oldStorageUnit] is TEAbstractStorageUnit)
                     {
-                        TileEntity storageUnit = TileEntity.ByPosition[oldStorageUnit];
+                        TileEntity storageUnit = ByPosition[oldStorageUnit];
                         ((TEAbstractStorageUnit)storageUnit).Unlink();
                         NetHelper.SendTEUpdate(storageUnit.ID, storageUnit.Position);
                     }
@@ -70,9 +68,7 @@ namespace MagicStorage.Components
             {
                 TEStorageHeart heart = GetHeart();
                 if (heart != null)
-                {
                     heart.ResetCompactStage();
-                }
                 NetHelper.SendTEUpdate(ID, Position);
             }
         }
@@ -86,7 +82,7 @@ namespace MagicStorage.Components
         {
             foreach (Point16 storageUnit in storageUnits)
             {
-                TEAbstractStorageUnit unit = (TEAbstractStorageUnit)TileEntity.ByPosition[storageUnit];
+                TEAbstractStorageUnit unit = (TEAbstractStorageUnit)ByPosition[storageUnit];
                 unit.Unlink();
                 NetHelper.SendTEUpdate(unit.ID, unit.Position);
             }
@@ -96,7 +92,7 @@ namespace MagicStorage.Components
 
         public static bool IsStorageCenter(Point16 point)
         {
-            return TileEntity.ByPosition.ContainsKey(point) && TileEntity.ByPosition[point] is TEStorageCenter;
+            return ByPosition.ContainsKey(point) && ByPosition[point] is TEStorageCenter;
         }
 
         public override TagCompound Save()
@@ -117,9 +113,7 @@ namespace MagicStorage.Components
         public override void Load(TagCompound tag)
         {
             foreach (TagCompound tagUnit in tag.GetList<TagCompound>("StorageUnits"))
-            {
                 storageUnits.Add(new Point16(tagUnit.GetShort("X"), tagUnit.GetShort("Y")));
-            }
         }
 
         public override void NetSend(BinaryWriter writer, bool lightSend)
@@ -136,9 +130,7 @@ namespace MagicStorage.Components
         {
             int count = reader.ReadInt16();
             for (int k = 0; k < count; k++)
-            {
                 storageUnits.Add(new Point16(reader.ReadInt16(), reader.ReadInt16()));
-            }
         }
     }
 }

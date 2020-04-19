@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.ModLoader.IO;
 using Terraria.Localization;
 
-namespace MagicStorage.Items
+namespace MagicStoragePlus.Items
 {
     public class PortableAccess : Locator
     {
@@ -49,13 +46,9 @@ namespace MagicStorage.Items
                 {
                     Tile tile = Main.tile[location.X, location.Y];
                     if (!tile.active() || tile.type != mod.TileType("StorageHeart") || tile.frameX != 0 || tile.frameY != 0)
-                    {
                         Main.NewText("Storage Heart is missing!");
-                    }
                     else
-                    {
                         OpenStorage(player);
-                    }
                 }
                 else
                 {
@@ -96,7 +89,7 @@ namespace MagicStorage.Items
             player.chest = -1;
             Main.stackSplit = 600;
             Point16 toOpen = location;
-            Point16 prevOpen = modPlayer.ViewingStorage();
+            Point16 prevOpen = modPlayer.StorageAccess;
             if (prevOpen == toOpen)
             {
                 modPlayer.CloseStorage();
@@ -122,7 +115,7 @@ namespace MagicStorage.Items
             {
                 if (isSet && lines[k].mod == "Terraria" && lines[k].Name == "Tooltip1")
                 {
-                    lines[k].text = Language.GetTextValue("Mods.MagicStorage.SetTo", location.X, location.Y);
+                    lines[k].text = Language.GetTextValue("Mods.MagicStoragePlus.SetTo", location.X, location.Y);
                 }
                 else if (!isSet && lines[k].mod == "Terraria" && lines[k].Name == "Tooltip2")
                 {
@@ -137,19 +130,19 @@ namespace MagicStorage.Items
             ModRecipe recipe = new ModRecipe(mod);
             recipe.AddIngredient(mod, "LocatorDisk");
             recipe.AddIngredient(mod, "RadiantJewel");
-            recipe.AddRecipeGroup("MagicStorage:AnyDiamond", 3);
+            recipe.AddRecipeGroup("MagicStoragePlus:AnyDiamond", 3);
             recipe.AddIngredient(ItemID.Ruby, 7);
             recipe.AddTile(TileID.LunarCraftingStation);
             recipe.SetResult(this);
             recipe.AddRecipe();
 
-            Mod otherMod = MagicStorage.bluemagicMod;
+            Mod otherMod = MagicStoragePlus.BluemagicMod;
             if (otherMod != null)
             {
                 recipe = new ModRecipe(mod);
                 recipe.AddIngredient(mod, "LocatorDisk");
                 recipe.AddIngredient(otherMod, "InfinityCrystal");
-                recipe.AddRecipeGroup("MagicStorage:AnyDiamond", 3);
+                recipe.AddRecipeGroup("MagicStoragePlus:AnyDiamond", 3);
                 recipe.AddIngredient(ItemID.Ruby, 7);
                 recipe.AddTile(otherMod, "PuriumAnvil");
                 recipe.SetResult(this);
@@ -162,7 +155,7 @@ namespace MagicStorage.Items
                 recipe = new ModRecipe(mod);
                 recipe.AddIngredient(mod, "LocatorDisk");
                 recipe.AddIngredient(otherMod, "CosmiliteBar", 20);
-                recipe.AddRecipeGroup("MagicStorage:AnyDiamond", 3);
+                recipe.AddRecipeGroup("MagicStoragePlus:AnyDiamond", 3);
                 recipe.AddIngredient(ItemID.Ruby, 7);
                 recipe.AddTile(TileID.LunarCraftingStation);
                 recipe.SetResult(this);

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Terraria;
 
-namespace MagicStorage.Sorting
+namespace MagicStoragePlus.Sorting
 {
     public class BTree<T>
     {

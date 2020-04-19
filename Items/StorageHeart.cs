@@ -1,10 +1,9 @@
-﻿using System;
-using Terraria;
+﻿using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Localization;
 
-namespace MagicStorage.Items
+namespace MagicStoragePlus.Items
 {
     public class StorageHeart : ModItem
     {
@@ -37,15 +36,11 @@ namespace MagicStorage.Items
         {
             ModRecipe recipe = new ModRecipe(mod);
             recipe.AddIngredient(null, "StorageComponent");
-            recipe.AddRecipeGroup("MagicStorage:AnyDiamond", 3);
-            if (MagicStorage.legendMod == null)
-            {
+            recipe.AddRecipeGroup("MagicStoragePlus:AnyDiamond", 3);
+            if (MagicStoragePlus.LegendMod == null)
                 recipe.AddIngredient(ItemID.Emerald, 7);
-            }
             else
-            {
-                recipe.AddRecipeGroup("MagicStorage:AnyEmerald", 7);
-            }
+                recipe.AddRecipeGroup("MagicStoragePlus:AnyEmerald", 7);
             recipe.AddTile(TileID.WorkBenches);
             recipe.SetResult(this);
             recipe.AddRecipe();

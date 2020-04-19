@@ -6,9 +6,24 @@ This mod offers a solution to storage problems once and for all. It allows you t
 
 The magic storage scales as you progress in your playthrough. It is accessible very early in the game, but with limited power. As you defeat bosses and earn more materials, you will be able to upgrade your storage to perform more functions and more easily expand the storage capacity.
 
+## What this fork is
+
+I decided to improve a bit on things I didn't really quite like in the original mod.
+
+For example you can no longer place stations in the crafting interface (this seemed strange and not Terraria-like),
+now can now craft directly from storage (as long as you are next to the required station and have the interface opened).
+
+Another thing I didn't like was the UI. It was too futuristic/mechanical and not really "magic". I tried to improve it and this is the result:
+
 ## Description and discussion
 A full description and discussion concerning this mod can be found at the [Terraria forum thread](https://forums.terraria.org/index.php?threads/magic-storage.56294/)
 
 ## Credits
  * [@AdipemDragon](https://forums.terraria.org/index.php?members/adipemdragon.2930/) - Spriting
  * [@blushiemagic](https://github.com/blushiemagic/MagicStorage) - The original mod
+
+## TODO
+* It's annoying to have to rely on HarmonyLib to do IL hooking. I think using the intended way caused a crash because the method I was patching was too big (DrawInventory).
+
+
+ 

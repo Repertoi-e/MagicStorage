@@ -1,144 +1,119 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
+
 using Terraria;
 
-namespace MagicStorage.Sorting
+namespace MagicStoragePlus.Sorting
 {
-    public static class ItemSorter
+    public enum FilterMode
     {
-        public static IEnumerable<Item> SortAndFilter(IEnumerable<Item> items, SortMode sortMode, FilterMode filterMode, string modFilter, string nameFilter)
+        All,
+        Weapons,
+        Tools,
+        Equipment,
+        Potions,
+        Placeables,
+        Misc
+    }
+
+    public enum SortMode
+    {
+        Default,
+        Id,
+        Name,
+        Quantity
+    }
+
+    public static class Items
+    {
+        static bool FilterName(Item item, string filter)
+        {
+            return item.Name.ToLowerInvariant().IndexOf(filter.ToLowerInvariant()) >= 0;
+        }
+
+        static bool FilterMod(Item item, string filter)
+        {
+            string mod = "Terraria";
+            if (item.modItem != null) mod = item.modItem.mod.DisplayName;
+            return mod.ToLowerInvariant().IndexOf(filter.ToLowerInvariant()) >= 0;
+        }
+
+        public static IEnumerable<Item> FilterAndSort(IEnumerable<Item> items, SortMode sortMode, FilterMode filterMode, string modFilter, string nameFilter)
         {
             ItemFilter filter;
             switch (filterMode)
             {
-            case FilterMode.All:
-                filter = new FilterAll();
-                break;
-            case FilterMode.Weapons:
-                filter = new FilterWeapon();
-                break;
-            case FilterMode.Tools:
-                filter = new FilterTool();
-                break;
-            case FilterMode.Equipment:
-                filter = new FilterEquipment();
-                break;
-            case FilterMode.Potions:
-                filter = new FilterPotion();
-                break;
-            case FilterMode.Placeables:
-                filter = new FilterPlaceable();
-                break;
-            case FilterMode.Misc:
-                filter = new FilterMisc();
-                break;
-            default:
-                filter = new FilterAll();
-                break;
+                case FilterMode.All: filter = new FilterAll(); break;
+                case FilterMode.Weapons: filter = new FilterWeapon(); break;
+                case FilterMode.Tools: filter = new FilterTool(); break;
+                case FilterMode.Equipment: filter = new FilterEquipment(); break;
+                case FilterMode.Potions: filter = new FilterPotion(); break;
+                case FilterMode.Placeables: filter = new FilterPlaceable(); break;
+                case FilterMode.Misc: filter = new FilterMisc(); break;
+                default: filter = new FilterAll(); break;
             }
-            IEnumerable<Item> filteredItems = items.Where((item) => filter.Passes(item) && FilterName(item, modFilter, nameFilter));
-            CompareFunction func;
+
+            IEnumerable<Item> result = items.Where((item) => filter.Passes(item) && FilterMod(item, modFilter) && FilterName(item, nameFilter));
+            CompareFunction compare = null;
             switch (sortMode)
             {
-            case SortMode.Default:
-                func = new CompareDefault();
-                break;
-            case SortMode.Id:
-                func = new CompareID();
-                break;
-            case SortMode.Name:
-                func = new CompareName();
-                break;
-            case SortMode.Quantity:
-                func = new CompareID();
-                break;
-            default:
-                return filteredItems;
-            }
-            BTree<Item> sortedTree = new BTree<Item>(func);
-            foreach (Item item in filteredItems)
-            {
-                sortedTree.Insert(item);
-            }
+                case SortMode.Default: compare = new CompareDefault(); break;
+                case SortMode.Id: compare = new CompareID(); break;
+                case SortMode.Name: compare = new CompareName(); break;
+                case SortMode.Quantity: compare = new CompareID(); break; // Note: We first sort by ID, and down bellow we sort by qunatity 
+            };
+            if (compare == null) return result;
+
+            BTree<Item> tree = new BTree<Item>(compare);
+            foreach (Item item in result)
+                tree.Insert(item);
+
             if (sortMode == SortMode.Quantity)
             {
-                BTree<Item> oldTree = sortedTree;
-                sortedTree = new BTree<Item>(new CompareQuantity());
-                foreach (Item item in oldTree.GetSortedItems())
-                {
-                    sortedTree.Insert(item);
-                }
+                BTree<Item> old = tree;
+                tree = new BTree<Item>(new CompareQuantity());
+                foreach (Item item in old.GetSortedItems())
+                    tree.Insert(item);
             }
-            return sortedTree.GetSortedItems();
+            return tree.GetSortedItems();
         }
 
+        /*
         public static IEnumerable<Recipe> GetRecipes(SortMode sortMode, FilterMode filterMode, string modFilter, string nameFilter)
         {
             ItemFilter filter;
             switch (filterMode)
             {
-            case FilterMode.All:
-                filter = new FilterAll();
-                break;
-            case FilterMode.Weapons:
-                filter = new FilterWeapon();
-                break;
-            case FilterMode.Tools:
-                filter = new FilterTool();
-                break;
-            case FilterMode.Equipment:
-                filter = new FilterEquipment();
-                break;
-            case FilterMode.Potions:
-                filter = new FilterPotion();
-                break;
-            case FilterMode.Placeables:
-                filter = new FilterPlaceable();
-                break;
-            case FilterMode.Misc:
-                filter = new FilterMisc();
-                break;
-            default:
-                filter = new FilterAll();
-                break;
+                case FilterMode.All: filter = new FilterAll(); break;
+                case FilterMode.Weapons: filter = new FilterWeapon(); break;
+                case FilterMode.Tools: filter = new FilterTool(); break;
+                case FilterMode.Equipment: filter = new FilterEquipment(); break;
+                case FilterMode.Potions: filter = new FilterPotion(); break;
+                case FilterMode.Placeables: filter = new FilterPlaceable(); break;
+                case FilterMode.Misc: filter = new FilterMisc(); break;
+                default: filter = new FilterAll(); break;
             }
-            IEnumerable<Recipe> filteredRecipes = Main.recipe.Where((recipe, index) => index < Recipe.numRecipes && filter.Passes(recipe) && FilterName(recipe.createItem, modFilter, nameFilter));
-            CompareFunction func;
+
+            var result = Main.recipe.Where((recipe, i) => i < Recipe.numRecipes && filter.Passes(recipe) && FilterMod(recipe.createItem, modFilter) && FilterName(recipe.createItem, nameFilter));
+
+            CompareFunction compare = null;
             switch (sortMode)
             {
-            case SortMode.Default:
-                func = new CompareDefault();
-                break;
-            case SortMode.Id:
-                func = new CompareID();
-                break;
-            case SortMode.Name:
-                func = new CompareName();
-                break;
-            default:
-                return filteredRecipes;
-            }
-            BTree<Recipe> sortedTree = new BTree<Recipe>(func);
-            foreach (Recipe recipe in filteredRecipes)
-            {
-                sortedTree.Insert(recipe);
-                if (CraftingGUI.threadNeedsRestart)
-                {
-                    return new List<Recipe>();
-                }
-            }
-            return sortedTree.GetSortedItems();
-        }
+                case SortMode.Default: compare = new CompareDefault(); break;
+                case SortMode.Id: compare = new CompareID(); break;
+                case SortMode.Name: compare = new CompareName(); break;
+            };
+            if (compare == null) return result;
 
-        private static bool FilterName(Item item, string modFilter, string filter)
-        {
-            string modName = "Terraria";
-            if (item.modItem != null)
+            BTree<Recipe> tree = new BTree<Recipe>(compare);
+            foreach (Recipe recipe in result)
             {
-                modName = item.modItem.mod.DisplayName;
+                tree.Insert(recipe);
+                if (CraftingGUI.threadNeedsRestart)
+                    return new List<Recipe>();
             }
-            return modName.ToLowerInvariant().IndexOf(modFilter.ToLowerInvariant()) >= 0 && item.Name.ToLowerInvariant().IndexOf(filter.ToLowerInvariant()) >= 0;
+            return tree.GetSortedItems();
         }
+        */
     }
 }

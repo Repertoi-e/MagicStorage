@@ -1,12 +1,9 @@
-﻿using System;
-using Microsoft.Xna.Framework;
-using Terraria;
+﻿using Terraria;
 using Terraria.DataStructures;
-using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Localization;
 
-namespace MagicStorage.Items
+namespace MagicStoragePlus.Items
 {
     public class SnowBiomeEmulator : ModItem
     {
@@ -39,7 +36,7 @@ namespace MagicStorage.Items
         public override void AddRecipes()
         {
             ModRecipe recipe = new ModRecipe(mod);
-            recipe.AddRecipeGroup("MagicStorage:AnySnowBiomeBlock", 300);
+            recipe.AddRecipeGroup("MagicStoragePlus:AnySnowBiomeBlock", 300);
             recipe.AddTile(null, "CraftingAccess");
             recipe.SetResult(this);
             recipe.AddRecipe();

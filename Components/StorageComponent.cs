@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.DataStructures;
@@ -6,8 +5,9 @@ using Terraria.ModLoader;
 using Terraria.ObjectData;
 using Microsoft.Xna.Framework;
 using Terraria.ID;
+using Terraria.Enums;
 
-namespace MagicStorage.Components
+namespace MagicStoragePlus.Components
 {
     public class StorageComponent : ModTile
     {
@@ -18,16 +18,30 @@ namespace MagicStorage.Components
 
         public override void SetDefaults()
         {
+            Main.tileSpelunker[Type] = true;
+            Main.tileContainer[Type] = true;
+            Main.tileNoAttach[Type] = true;
+            Main.tileValue[Type] = 500;
             Main.tileSolidTop[Type] = true;
+            Main.tileTable[Type] = true;
             Main.tileFrameImportant[Type] = true;
-            TileObjectData.newTile.Width = 2;
-            TileObjectData.newTile.Height = 2;
+
+            TileObjectData.newTile.CopyFrom(TileObjectData.Style2x2);
             TileObjectData.newTile.Origin = new Point16(1, 1);
-            TileObjectData.newTile.CoordinateHeights = new int[] { 16, 16 };
             TileObjectData.newTile.CoordinateWidth = 16;
+            TileObjectData.newTile.CoordinateHeights = new[] { 16, 16 };
             TileObjectData.newTile.CoordinatePadding = 2;
+
+            // TileObjectData.newTile.HookCheck = new PlacementHook(new Func<int, int, int, int, int, int>(Chest.FindEmptyChest), -1, 0, true);
+
+            TileObjectData.newTile.AnchorInvalidTiles = new[] { 127 };
+            TileObjectData.newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide | AnchorType.Table, TileObjectData.newTile.Width, 0);
+
+            TileObjectData.newTile.LavaDeath = false;
+
             TileObjectData.newTile.HookCheck = new PlacementHook(CanPlace, -1, 0, true);
             TileObjectData.newTile.UsesCustomCanPlace = true;
+
             ModifyObjectData();
             ModTileEntity tileEntity = GetTileEntity();
             if (tileEntity != null)
@@ -71,18 +85,14 @@ namespace MagicStorage.Components
         {
             int count = 0;
             if (GetTileEntity() != null && GetTileEntity() is TEStorageCenter)
-            {
                 count++;
-            }
 
             Point16 startSearch = new Point16(i - 1, j - 1);
             HashSet<Point16> explored = new HashSet<Point16>();
             explored.Add(startSearch);
             Queue<Point16> toExplore = new Queue<Point16>();
             foreach (Point16 point in TEStorageComponent.AdjacentComponents(startSearch))
-            {
                 toExplore.Enqueue(point);
-            }
 
             while (toExplore.Count > 0)
             {
@@ -119,13 +129,9 @@ namespace MagicStorage.Components
             else
             {
                 if (Main.netMode == 1)
-                {
                     NetHelper.SendSearchAndRefresh(killTile.X, killTile.Y);
-                }
                 else
-                {
                     TEStorageComponent.SearchAndRefreshNetwork(killTile);
-                }
             }
             killTile = new Point16(-1, -1);
         }

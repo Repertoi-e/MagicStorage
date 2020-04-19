@@ -1,15 +1,13 @@
-using System;
-using System.Collections.Generic;
 using Terraria;
-using Terraria.DataStructures;
 using Terraria.ModLoader;
 
-namespace MagicStorage
+namespace MagicStoragePlus
 {
     public class BlockRecipes : GlobalRecipe
     {
         public static bool active = true;
 
+        // Block recipes if we are in storage access but not if we are in crafting 
         public override bool RecipeAvailable(Recipe recipe)
         {
             if (!active)
@@ -18,10 +16,10 @@ namespace MagicStorage
             }
             try
             {
-                Player player = Main.player[Main.myPlayer];
-                StoragePlayer modPlayer = player.GetModPlayer<StoragePlayer>();
-                Point16 storageAccess = modPlayer.ViewingStorage();
-                return storageAccess.X < 0 || storageAccess.Y < 0;
+                var p = StoragePlayer.Get;
+                if (p.StorageAccess.X < 0 || p.StorageAccess.Y < 0)
+                    return true;
+                return p.IsInCrafting();
             }
             catch
             {

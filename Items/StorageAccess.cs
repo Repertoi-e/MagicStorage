@@ -1,10 +1,9 @@
-﻿using System;
-using Terraria;
+﻿using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Localization;
 
-namespace MagicStorage.Items
+namespace MagicStoragePlus.Items
 {
     public class StorageAccess : ModItem
     {
@@ -37,15 +36,11 @@ namespace MagicStorage.Items
         {
             ModRecipe recipe = new ModRecipe(mod);
             recipe.AddIngredient(null, "StorageComponent");
-            recipe.AddRecipeGroup("MagicStorage:AnyDiamond", 1);
-            if (MagicStorage.legendMod == null)
-            {
+            recipe.AddRecipeGroup("MagicStoragePlus:AnyDiamond", 1);
+            if (MagicStoragePlus.LegendMod == null)
                 recipe.AddIngredient(ItemID.Topaz, 7);
-            }
             else
-            {
-                recipe.AddRecipeGroup("MagicStorage:AnyTopaz", 7);
-            }
+                recipe.AddRecipeGroup("MagicStoragePlus:AnyTopaz", 7);
             recipe.AddTile(TileID.WorkBenches);
             recipe.SetResult(this);
             recipe.AddRecipe();

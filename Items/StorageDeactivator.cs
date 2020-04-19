@@ -1,12 +1,11 @@
-﻿using System;
-using Terraria;
+﻿using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagicStorage.Components;
+using MagicStoragePlus.Components;
 using Terraria.Localization;
 
-namespace MagicStorage.Items
+namespace MagicStoragePlus.Items
 {
     public class StorageDeactivator : ModItem
     {
@@ -49,13 +48,10 @@ namespace MagicStorage.Items
                 int i = Player.tileTargetX;
                 int j = Player.tileTargetY;
                 if (Main.tile[i, j].frameX % 36 == 18)
-                {
                     i--;
-                }
                 if (Main.tile[i, j].frameY % 36 == 18)
-                {
                     j--;
-                }
+
                 Point16 point = new Point16(i, j);
                 if (TileEntity.ByPosition.ContainsKey(point) && TileEntity.ByPosition[point] is TEAbstractStorageUnit)
                 {
@@ -68,9 +64,7 @@ namespace MagicStorage.Items
                     {
                         ((TEStorageUnit)storageUnit).UpdateTileFrameWithNetSend();
                         if (Main.netMode == 0)
-                        {
                             storageUnit.GetHeart().ResetCompactStage();
-                        }
                     }
                 }
             }

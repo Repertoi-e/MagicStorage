@@ -1,10 +1,9 @@
-﻿using System;
-using Terraria;
+﻿using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Localization;
 
-namespace MagicStorage.Items
+namespace MagicStoragePlus.Items
 {
     public class UpgradeHallowed : ModItem
     {
@@ -47,14 +46,10 @@ namespace MagicStorage.Items
             recipe.AddIngredient(ItemID.SoulofFright);
             recipe.AddIngredient(ItemID.SoulofMight);
             recipe.AddIngredient(ItemID.SoulofSight);
-            if (MagicStorage.legendMod == null)
-            {
+            if (MagicStoragePlus.LegendMod == null)
                 recipe.AddIngredient(ItemID.Sapphire);
-            }
             else
-            {
-                recipe.AddRecipeGroup("MagicStorage:AnySapphire");
-            }
+                recipe.AddRecipeGroup("MagicStoragePlus:AnySapphire");
             recipe.AddTile(TileID.MythrilAnvil);
             recipe.SetResult(this);
             recipe.AddRecipe();
