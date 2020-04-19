@@ -11,8 +11,4 @@ A full description and discussion concerning this mod can be found at the [Terra
 
 ## Credits
  * [@AdipemDragon](https://forums.terraria.org/index.php?members/adipemdragon.2930/) - Spriting
-
-## TODO
-* Crafting Interface
-* Money Compactor
-* Wait for bug reports
+ * [@blushiemagic](https://github.com/blushiemagic/MagicStorage) - The original mod
