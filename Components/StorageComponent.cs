@@ -18,30 +18,16 @@ namespace MagicStoragePlus.Components
 
         public override void SetDefaults()
         {
-            Main.tileSpelunker[Type] = true;
-            Main.tileContainer[Type] = true;
-            Main.tileNoAttach[Type] = true;
-            Main.tileValue[Type] = 500;
             Main.tileSolidTop[Type] = true;
-            Main.tileTable[Type] = true;
             Main.tileFrameImportant[Type] = true;
-
-            TileObjectData.newTile.CopyFrom(TileObjectData.Style2x2);
+            TileObjectData.newTile.Width = 2;
+            TileObjectData.newTile.Height = 2;
             TileObjectData.newTile.Origin = new Point16(1, 1);
+            TileObjectData.newTile.CoordinateHeights = new int[] { 16, 16 };
             TileObjectData.newTile.CoordinateWidth = 16;
-            TileObjectData.newTile.CoordinateHeights = new[] { 16, 16 };
             TileObjectData.newTile.CoordinatePadding = 2;
-
-            // TileObjectData.newTile.HookCheck = new PlacementHook(new Func<int, int, int, int, int, int>(Chest.FindEmptyChest), -1, 0, true);
-
-            TileObjectData.newTile.AnchorInvalidTiles = new[] { 127 };
-            TileObjectData.newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide | AnchorType.Table, TileObjectData.newTile.Width, 0);
-
-            TileObjectData.newTile.LavaDeath = false;
-
             TileObjectData.newTile.HookCheck = new PlacementHook(CanPlace, -1, 0, true);
             TileObjectData.newTile.UsesCustomCanPlace = true;
-
             ModifyObjectData();
             ModTileEntity tileEntity = GetTileEntity();
             if (tileEntity != null)
@@ -97,7 +83,7 @@ namespace MagicStoragePlus.Components
             while (toExplore.Count > 0)
             {
                 Point16 explore = toExplore.Dequeue();
-                if (!explored.Contains(explore) && explore != StorageComponent.killTile)
+                if (!explored.Contains(explore) && explore != killTile)
                 {
                     explored.Add(explore);
                     if (TEStorageCenter.IsStorageCenter(explore))
@@ -109,9 +95,7 @@ namespace MagicStoragePlus.Components
                         }
                     }
                     foreach (Point16 point in TEStorageComponent.AdjacentComponents(explore))
-                    {
                         toExplore.Enqueue(point);
-                    }
                 }
             }
             return count;

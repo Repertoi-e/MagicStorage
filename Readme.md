@@ -13,6 +13,8 @@ I decided to improve a bit on things I didn't really quite like in the original 
 For example you can no longer place stations in the crafting interface (this seemed strange and not Terraria-like),
 now can now craft directly from storage (as long as you are next to the required station and have the interface opened).
 
+Restock and quick stack button. Also "quick stack to nearby chests" looks for storage access points.
+
 Another thing I didn't like was the UI. It was too futuristic/mechanical and not really "magic". I tried to improve it and this is the result:
 
 ## Description and discussion

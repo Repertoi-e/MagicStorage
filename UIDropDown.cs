@@ -15,14 +15,14 @@ namespace MagicStoragePlus
         public int OptionsX = 10, OptionsY = 22;
         public int OptionDiffY = 24;
 
-        public int CurrentOption { get; private set; } = 0;
+        public int CurrentOption { get; set; } = 0;
 
-        public bool Focused { get; private set; }
+        public bool Focused { get; set; }
 
         public event Action OnFocus;
         public event Action OnUnfocus;
 
-        public List<UITextButton> Options { get; private set; } = new List<UITextButton>();
+        public List<UITextButton> Options { get; set; } = new List<UITextButton>();
 
         Color DefaultTextColor;
         UIText SelectedBullet = new UIText("•", 1);

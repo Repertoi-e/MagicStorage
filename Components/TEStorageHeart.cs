@@ -10,10 +10,11 @@ namespace MagicStoragePlus.Components
 {
     public class TEStorageHeart : TEStorageCenter
     {
-        private ReaderWriterLockSlim itemsLock = new ReaderWriterLockSlim();
-        public List<Point16> remoteAccesses = new List<Point16>();
-        private int updateTimer = 60;
-        private int compactStage = 0;
+        ReaderWriterLockSlim itemsLock = new ReaderWriterLockSlim();
+        int updateTimer = 60;
+        int compactStage = 0;
+
+        public List<Point16> RemoteAccesses = new List<Point16>();
 
         public override bool ValidTile(Tile tile)
         {
@@ -24,7 +25,7 @@ namespace MagicStoragePlus.Components
 
         public IEnumerable<TEAbstractStorageUnit> GetStorageUnits()
         {
-            return storageUnits.Concat(remoteAccesses.Where(remoteAccess => ByPosition.ContainsKey(remoteAccess) && ByPosition[remoteAccess] is TERemoteAccess)
+            return storageUnits.Concat(RemoteAccesses.Where(remoteAccess => ByPosition.ContainsKey(remoteAccess) && ByPosition[remoteAccess] is TERemoteAccess)
                 .SelectMany(remoteAccess => ((TERemoteAccess)ByPosition[remoteAccess]).storageUnits))
                 .Where(storageUnit => ByPosition.ContainsKey(storageUnit) && ByPosition[storageUnit] is TEAbstractStorageUnit)
                 .Select(storageUnit => (TEAbstractStorageUnit)ByPosition[storageUnit]);
@@ -57,11 +58,11 @@ namespace MagicStoragePlus.Components
 
         public override void Update()
         {
-            for (int k = 0; k < remoteAccesses.Count; k++)
+            for (int k = 0; k < RemoteAccesses.Count; k++)
             {
-                if (!ByPosition.ContainsKey(remoteAccesses[k]) || !(ByPosition[remoteAccesses[k]] is TERemoteAccess))
+                if (!ByPosition.ContainsKey(RemoteAccesses[k]) || !(ByPosition[RemoteAccesses[k]] is TERemoteAccess))
                 {
-                    remoteAccesses.RemoveAt(k);
+                    RemoteAccesses.RemoveAt(k);
                     k--;
                 }
             }
@@ -329,7 +330,7 @@ namespace MagicStoragePlus.Components
         {
             TagCompound tag = base.Save();
             List<TagCompound> tagRemotes = new List<TagCompound>();
-            foreach (Point16 remoteAccess in remoteAccesses)
+            foreach (Point16 remoteAccess in RemoteAccesses)
             {
                 TagCompound tagRemote = new TagCompound();
                 tagRemote.Set("X", remoteAccess.X);
@@ -344,14 +345,14 @@ namespace MagicStoragePlus.Components
         {
             base.Load(tag);
             foreach (TagCompound tagRemote in tag.GetList<TagCompound>("RemoteAccesses"))
-                remoteAccesses.Add(new Point16(tagRemote.GetShort("X"), tagRemote.GetShort("Y")));
+                RemoteAccesses.Add(new Point16(tagRemote.GetShort("X"), tagRemote.GetShort("Y")));
         }
 
         public override void NetSend(BinaryWriter writer, bool lightSend)
         {
             base.NetSend(writer, lightSend);
-            writer.Write((short)remoteAccesses.Count);
-            foreach (Point16 remoteAccess in remoteAccesses)
+            writer.Write((short)RemoteAccesses.Count);
+            foreach (Point16 remoteAccess in RemoteAccesses)
             {
                 writer.Write(remoteAccess.X);
                 writer.Write(remoteAccess.Y);
@@ -363,7 +364,7 @@ namespace MagicStoragePlus.Components
             base.NetReceive(reader, lightReceive);
             int count = reader.ReadInt16();
             for (int k = 0; k < count; k++)
-                remoteAccesses.Add(new Point16(reader.ReadInt16(), reader.ReadInt16()));
+                RemoteAccesses.Add(new Point16(reader.ReadInt16(), reader.ReadInt16()));
         }
     }
 }

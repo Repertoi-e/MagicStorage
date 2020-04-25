@@ -1,11 +1,8 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
-using Terraria.ModLoader;
 using Terraria.UI;
 
 namespace MagicStoragePlus
@@ -41,26 +38,46 @@ namespace MagicStoragePlus
             numRows = rows;
         }
 
+        static int lastRecipeFocus = -1;
+
         public void Update()
         {
             hoverSlot = -1;
 
-            if (ScrollBar != null)
-                ScrollBar.ViewPosition += (float)UI.ScrollWheelDelta / 250;
+            bool outside = false;
+            
+            var rect = UI.GetFullRectangle(this);
+            Vector2 o = rect.TopLeft();
+            Vector2 m = rect.BottomRight();
+            if (UI.Mouse.X <= o.X || UI.Mouse.Y <= o.Y || UI.Mouse.Y >= m.X || UI.Mouse.Y >= m.Y)
+            {
+                outside = true;
+            }
+            else
+            {
+                if (ScrollBar != null)
+                {
 
-            Vector2 origin = UI.GetFullRectangle(this).TopLeft();
-            if (UI.Mouse.X <= origin.X || UI.Mouse.Y <= origin.Y)
-                return;
+                    var d = UI.ScrollWheelDelta;
+                    if (d != 0 && lastRecipeFocus != -1)
+                        Main.focusRecipe = lastRecipeFocus;
+                    ScrollBar.ViewPosition += (float)UI.ScrollWheelDelta / 250;
+                }
+            }
+
+            lastRecipeFocus = Main.focusRecipe;
+
+            if (outside) return;
 
             int slotWidth = (int)(Main.inventoryBackTexture.Width * inventoryScale * Main.UIScale);
             int slotHeight = (int)(Main.inventoryBackTexture.Height * inventoryScale * Main.UIScale);
-            int slotX = (int)(UI.Mouse.X - origin.X) / (slotWidth + padding);
-            int slotY = (int)(UI.Mouse.Y - origin.Y) / (slotHeight + padding);
+            int slotX = (int)(UI.Mouse.X - o.X) / (slotWidth + padding);
+            int slotY = (int)(UI.Mouse.Y - o.Y) / (slotHeight + padding);
             if (slotX < 0 || slotX >= numColumns || slotY < 0 || slotY >= numRows)
             {
                 return;
             }
-            Vector2 slotPos = origin + new Vector2(slotX * (slotWidth + padding * Main.UIScale), slotY * (slotHeight + padding * Main.UIScale));
+            Vector2 slotPos = o + new Vector2(slotX * (slotWidth + padding * Main.UIScale), slotY * (slotHeight + padding * Main.UIScale));
             if (
                 UI.Mouse.X > slotPos.X && UI.Mouse.X < slotPos.X + slotWidth && UI.Mouse.Y > slotPos.Y && UI.Mouse.Y < slotPos.Y + slotHeight)
             {

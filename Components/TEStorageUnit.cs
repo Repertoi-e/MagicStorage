@@ -395,7 +395,7 @@ namespace MagicStoragePlus.Components
             reader.Dispose(); decompressor.Dispose(); bufferWriter.Dispose(); buffer.Dispose();
         }
 
-        private void ClearItemsData()
+        void ClearItemsData()
         {
             items.Clear();
             hasSpaceInStack.Clear();
@@ -403,7 +403,7 @@ namespace MagicStoragePlus.Components
             hasItemNoPrefix.Clear();
         }
 
-        private void RepairMetadata()
+        void RepairMetadata()
         {
             hasSpaceInStack.Clear();
             hasItem.Clear();
@@ -418,7 +418,7 @@ namespace MagicStoragePlus.Components
             }
         }
 
-        private void PostChangeContents()
+        void PostChangeContents()
         {
             RepairMetadata();
             UpdateTileFrameWithNetSend(true);
@@ -431,7 +431,7 @@ namespace MagicStoragePlus.Components
             public static readonly UnitOperation Deposit = new DepositOperation();
             public static readonly UnitOperation Withdraw = new WithdrawOperation();
             public static readonly UnitOperation WithdrawStack = new WithdrawStackOperation();
-            private static List<UnitOperation> types = new List<UnitOperation>();
+            static List<UnitOperation> types = new List<UnitOperation>();
 
             static UnitOperation()
             {

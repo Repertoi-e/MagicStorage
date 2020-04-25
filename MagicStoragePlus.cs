@@ -9,6 +9,7 @@ using Terraria.ModLoader;
 using Terraria.UI;
 using Terraria.DataStructures;
 using Terraria.Localization;
+using Terraria.GameInput;
 using HarmonyLib;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -176,12 +177,31 @@ namespace MagicStoragePlus
             return matcher.InstructionEnumeration();
         }
     }
+
+    /*
+    [HarmonyPatch(typeof(Main))]
+    [HarmonyPatch("DoUpdate")]
+    public class MainDoUpdatePatch
+    {
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
+        {
+            var matcher = new CodeMatcher(instructions, il);
+
+            // Make the player inventory use our scroll wheel delta so the crafting recipes don't scroll when we scroll our storage view
+            matcher.MatchForward(false, new CodeMatch(OpCodes.Ldsfld, typeof(PlayerInput).GetField(nameof(PlayerInput.ScrollWheelDelta))), new CodeMatch(OpCodes.Ldc_I4_S, 120), new CodeMatch(OpCodes.Div));
+
+            matcher.Instruction.operand = typeof(UI).GetField(nameof(UI.ScrollWheelDelta));
+            return matcher.InstructionEnumeration();
+        }
+    }
+    */
+
 #endif
 
     public class MagicStoragePlus : Mod
     {
         public static MagicStoragePlus Instance;
-        public string[] AllMods { get; private set; }
+        public string[] AllMods { get; set; }
 
         public UserInterface Interface;
         public StorageUI StorageUI;
@@ -203,8 +223,6 @@ namespace MagicStoragePlus
             Instance = this;
             UI.Initialize();
 
-            AddTranslations();
-
             LegendMod = ModLoader.GetMod("LegendOfTerraria3");
             BluemagicMod = ModLoader.GetMod("Bluemagic");
 
@@ -214,6 +232,7 @@ namespace MagicStoragePlus
             HarmonyInstance.PatchAll();
 #endif
 
+            AddTranslations();
             if (!Main.dedServ)
             {
                 Interface = new UserInterface();
@@ -226,13 +245,18 @@ namespace MagicStoragePlus
         GameTime LastUpdateUIGameTime;
         public override void UpdateUI(GameTime gameTime)
         {
+            if (!Main.instance.IsActive) return;
             LastUpdateUIGameTime = gameTime;
-            if (Interface?.CurrentState != null)
-                Interface.Update(gameTime);
         }
 
         public override void Unload()
         {
+            StorageUI.Unload();
+            StorageUI = null;
+
+            Sorting.SortClassList.Uninitialize();
+            NetHelper.Unload();
+
 #if PATCH
             HarmonyInstance.UnpatchAll();
 #endif
@@ -241,7 +265,7 @@ namespace MagicStoragePlus
             LegendMod = null;
         }
 
-        private void AddTranslations()
+        void AddTranslations()
         {
             ModTranslation text = CreateTranslation("SetTo");
             text.SetDefault("Set to: X={0}, Y={1}");
@@ -271,7 +295,7 @@ namespace MagicStoragePlus
             text.AddTranslation(GameCulture.Russian, "Поиск по имени");
             text.AddTranslation(GameCulture.French, "Recherche par nom");
             text.AddTranslation(GameCulture.Spanish, "búsqueda por nombre");
-            text.AddTranslation(GameCulture.Chinese, "搜索名称");
+            // text.AddTranslation(GameCulture.Chinese, "搜索名称");
             AddTranslation(text);
 
             text = CreateTranslation("SearchMod");
@@ -279,7 +303,7 @@ namespace MagicStoragePlus
             text.AddTranslation(GameCulture.Russian, "Поиск по моду");
             text.AddTranslation(GameCulture.French, "Recherche par mod");
             text.AddTranslation(GameCulture.Spanish, "búsqueda por mod");
-            text.AddTranslation(GameCulture.Chinese, "搜索模组");
+            // text.AddTranslation(GameCulture.Chinese, "搜索模组");
             AddTranslation(text);
 
             text = CreateTranslation("Sort");
@@ -385,59 +409,6 @@ namespace MagicStoragePlus
             text.AddTranslation(GameCulture.Spanish, "Otros");
             // text.AddTranslation(GameCulture.Chinese, "筛选杂项"); @TODO: Chinese
             AddTranslation(text);
-
-            /*
-            text = CreateTranslation("CraftingStations");
-            text.SetDefault("Crafting Stations");
-            text.AddTranslation(GameCulture.Russian, "Станции создания");
-            text.AddTranslation(GameCulture.French, "Stations d'artisanat");
-            text.AddTranslation(GameCulture.Spanish, "Estaciones de elaboración");
-            text.AddTranslation(GameCulture.Chinese, "制作站");
-            AddTranslation(text);
-
-            text = CreateTranslation("Recipes");
-            text.SetDefault("Recipes");
-            text.AddTranslation(GameCulture.Russian, "Рецепты");
-            text.AddTranslation(GameCulture.French, "Recettes");
-            text.AddTranslation(GameCulture.Spanish, "Recetas");
-            text.AddTranslation(GameCulture.Chinese, "合成配方");
-            AddTranslation(text);
-
-            text = CreateTranslation("SelectedRecipe");
-            text.SetDefault("Selected Recipe");
-            text.AddTranslation(GameCulture.French, "Recette sélectionnée");
-            text.AddTranslation(GameCulture.Spanish, "Receta seleccionada");
-            text.AddTranslation(GameCulture.Chinese, "选择配方");
-            AddTranslation(text);
-
-            text = CreateTranslation("Ingredients");
-            text.SetDefault("Ingredients");
-            text.AddTranslation(GameCulture.French, "Ingrédients");
-            text.AddTranslation(GameCulture.Spanish, "Ingredientes");
-            text.AddTranslation(GameCulture.Chinese, "材料");
-            AddTranslation(text);
-
-            text = CreateTranslation("StoredItems");
-            text.SetDefault("Stored Ingredients");
-            text.AddTranslation(GameCulture.French, "Ingrédients Stockés");
-            text.AddTranslation(GameCulture.Spanish, "Ingredientes almacenados");
-            text.AddTranslation(GameCulture.Chinese, "存储中的材料");
-            AddTranslation(text);
-
-            text = CreateTranslation("RecipeAvailable");
-            text.SetDefault("Show available recipes");
-            text.AddTranslation(GameCulture.French, "Afficher les recettes disponibles");
-            text.AddTranslation(GameCulture.Spanish, "Mostrar recetas disponibles");
-            text.AddTranslation(GameCulture.Chinese, "显示可合成配方");
-            AddTranslation(text);
-
-            text = CreateTranslation("RecipeAll");
-            text.SetDefault("Show all recipes");
-            text.AddTranslation(GameCulture.French, "Afficher toutes les recettes");
-            text.AddTranslation(GameCulture.Spanish, "Mostrar todas las recetas");
-            text.AddTranslation(GameCulture.Chinese, "显示全部配方");
-            AddTranslation(text);
-            */
         }
 
         public override void PostSetupContent()
@@ -551,20 +522,17 @@ namespace MagicStoragePlus
                     "MagicStoragePlus: StorageAccess",
                     () =>
                     {
-                        if (LastUpdateUIGameTime != null && Interface?.CurrentState != null)
-                            Interface.Draw(Main.spriteBatch, LastUpdateUIGameTime);
+                        UI.Update();
+                        if (Main.instance.IsActive && LastUpdateUIGameTime != null && Interface?.CurrentState != null)
+                        {
+                            Interface.Update(LastUpdateUIGameTime);
+                            if (!Main.recBigList) Interface.Draw(Main.spriteBatch, LastUpdateUIGameTime);
+                        }
                         return true;
                     },
                     InterfaceScaleType.UI)
                 );
             }
-        }
-
-        public override void PostUpdateInput()
-        {
-            if (!Main.instance.IsActive)
-                return;
-            UI.Update();
         }
     }
 }

@@ -9,7 +9,7 @@ namespace MagicStoragePlus
 {
     public class StorageWorld : ModWorld
     {
-        private const int saveVersion = 0;
+        const int saveVersion = 0;
         public static bool kingSlimeDiamond = false;
         public static bool boss1Diamond = false;
         public static bool boss2Diamond = false;

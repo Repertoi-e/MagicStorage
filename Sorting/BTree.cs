@@ -8,8 +8,8 @@ namespace MagicStoragePlus.Sorting
 {
     public class BTree<T>
     {
-        private BTreeNode<T> root;
-        private CompareFunction func;
+        BTreeNode<T> root;
+        CompareFunction func;
 
         public BTree(CompareFunction func)
         {
@@ -36,11 +36,11 @@ namespace MagicStoragePlus.Sorting
 
     class BTreeNode<T>
     {
-        private const int branchFactor = 32;
-        private CompareFunction func;
-        private List<T> elements = new List<T>(branchFactor);
-        private List<BTreeNode<T>> branches = new List<BTreeNode<T>>(branchFactor + 1);
-        private bool isLeaf;
+        const int branchFactor = 32;
+        CompareFunction func;
+        List<T> elements = new List<T>(branchFactor);
+        List<BTreeNode<T>> branches = new List<BTreeNode<T>>(branchFactor + 1);
+        bool isLeaf;
 
         internal BTreeNode(CompareFunction func, bool isLeaf)
         {
@@ -92,7 +92,7 @@ namespace MagicStoragePlus.Sorting
             }
         }
 
-        private int InsertIntoElements(T item)
+        int InsertIntoElements(T item)
         {
             int min = 0;
             int max = elements.Count;
@@ -134,7 +134,7 @@ namespace MagicStoragePlus.Sorting
             return min;
         }
 
-        private int InsertIntoBranch(T item, out T pushItem, out BTreeNode<T> pushNode)
+        int InsertIntoBranch(T item, out T pushItem, out BTreeNode<T> pushNode)
         {
             int min = 0;
             int max = elements.Count;
@@ -181,7 +181,7 @@ namespace MagicStoragePlus.Sorting
             return -1;
         }
 
-        private void Split(out T pushItem, out BTreeNode<T> pushBranch)
+        void Split(out T pushItem, out BTreeNode<T> pushBranch)
         {
             BTreeNode<T> newNeighbor = new BTreeNode<T>(func, isLeaf);
             newNeighbor.elements.AddRange(elements.GetRange(branchFactor / 2 + 1, branchFactor / 2 - 1));
@@ -210,8 +210,8 @@ namespace MagicStoragePlus.Sorting
 
     public class AppendEnumerable<T> : IEnumerable<T>
     {
-        private IEnumerable<T> enumerable;
-        private T element;
+        IEnumerable<T> enumerable;
+        T element;
 
         public AppendEnumerable(IEnumerable<T> enumerable, T element)
         {
@@ -232,10 +232,10 @@ namespace MagicStoragePlus.Sorting
 
     public class AppendEnumerator<T> : IEnumerator<T>
     {
-        private IEnumerator<T> enumerator;
-        private T element;
-        private bool enumeratorFinished;
-        private bool finished;
+        IEnumerator<T> enumerator;
+        T element;
+        bool enumeratorFinished;
+        bool finished;
 
         public AppendEnumerator(IEnumerable<T> enumerable, T element)
         {

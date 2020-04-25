@@ -24,7 +24,7 @@ namespace MagicStoragePlus
         public static bool LeftReleased => currentMouse.LeftButton == ButtonState.Released;
         public static bool RightReleased => currentMouse.RightButton == ButtonState.Released;
 
-        public static int ScrollWheelDelta => oldMouse.ScrollWheelValue - currentMouse.ScrollWheelValue;
+        public static int ScrollWheelDelta { get; set; }
 
         public static Vector2 Mouse => new Vector2(Main.mouseX, Main.mouseY);
 
@@ -45,6 +45,7 @@ namespace MagicStoragePlus
         {
             oldMouse = currentMouse;
             currentMouse = Microsoft.Xna.Framework.Input.Mouse.GetState();
+            ScrollWheelDelta = oldMouse.ScrollWheelValue - currentMouse.ScrollWheelValue;
         }
 
         public static void ShowStorage(bool crafting)

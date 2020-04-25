@@ -56,7 +56,7 @@ namespace MagicStoragePlus.Components
             }
         }
 
-        private static IEnumerable<Point16> checkNeighbors = new Point16[]
+        static IEnumerable<Point16> checkNeighbors = new Point16[]
         {
             new Point16(-1, 0),
             new Point16(0, -1),
@@ -68,7 +68,7 @@ namespace MagicStoragePlus.Components
             new Point16(-1, 1)
         };
 
-        private static IEnumerable<Point16> checkNeighbors1x1 = new Point16[]
+        static IEnumerable<Point16> checkNeighbors1x1 = new Point16[]
         {
             new Point16(-1, 0),
             new Point16(0, -1),

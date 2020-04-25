@@ -48,7 +48,7 @@ namespace MagicStoragePlus
             Recalculate();
         }
 
-        private void UICheckbox_onLeftClick(UIMouseEvent evt, UIElement listeningElement)
+        void UICheckbox_onLeftClick(UIMouseEvent evt, UIElement listeningElement)
         {
             if (disabled) return;
             Selected = !Selected;

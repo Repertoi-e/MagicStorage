@@ -34,7 +34,7 @@ namespace MagicStoragePlus.Components
                     explored.Add(explore);
                     if (ByPosition.ContainsKey(explore) && ByPosition[explore] is TEAbstractStorageUnit)
                     {
-                        TEAbstractStorageUnit storageUnit = (TEAbstractStorageUnit)TileEntity.ByPosition[explore];
+                        var storageUnit = (TEAbstractStorageUnit)ByPosition[explore];
                         if (storageUnit.Link(Position))
                         {
                             NetHelper.SendTEUpdate(storageUnit.ID, storageUnit.Position);
@@ -82,7 +82,7 @@ namespace MagicStoragePlus.Components
         {
             foreach (Point16 storageUnit in storageUnits)
             {
-                TEAbstractStorageUnit unit = (TEAbstractStorageUnit)ByPosition[storageUnit];
+                var unit = (TEAbstractStorageUnit)ByPosition[storageUnit];
                 unit.Unlink();
                 NetHelper.SendTEUpdate(unit.ID, unit.Position);
             }

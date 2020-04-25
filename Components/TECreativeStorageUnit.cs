@@ -51,7 +51,7 @@ namespace MagicStoragePlus.Components
 
     class CreativeEnumerable : IEnumerable<Item>
     {
-        private bool inactive;
+        bool inactive;
 
         internal CreativeEnumerable(bool inactive)
         {
@@ -71,8 +71,8 @@ namespace MagicStoragePlus.Components
 
     class CreativeEnumerator : IEnumerator<Item>
     {
-        private bool inactive;
-        private int id = 0;
+        bool inactive;
+        int id = 0;
 
         internal CreativeEnumerator(bool inactive)
         {

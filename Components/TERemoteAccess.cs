@@ -7,7 +7,7 @@ namespace MagicStoragePlus.Components
 {
     public class TERemoteAccess : TEStorageCenter
     {
-        private Point16 locator = new Point16(-1, -1);
+        Point16 locator = new Point16(-1, -1);
 
         public override bool ValidTile(Tile tile)
         {
@@ -42,8 +42,8 @@ namespace MagicStoragePlus.Components
         public override void Update()
         {
             TEStorageHeart heart = GetHeart();
-            if (heart != null && !heart.remoteAccesses.Contains(Position))
-                heart.remoteAccesses.Add(Position);
+            if (heart != null && !heart.RemoteAccesses.Contains(Position))
+                heart.RemoteAccesses.Add(Position);
         }
 
         public override TagCompound Save()

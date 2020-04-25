@@ -9,7 +9,6 @@ using Terraria.ModLoader;
 using Terraria.UI;
 using MagicStoragePlus.Components;
 using MagicStoragePlus.Sorting;
-using System.Diagnostics;
 using Terraria.Localization;
 
 namespace MagicStoragePlus
@@ -33,13 +32,15 @@ namespace MagicStoragePlus
         const int startMaxRightClickTimer = 20;
         int maxRightClickTimer = startMaxRightClickTimer;
 
+        bool dirty = true;
+
         public void BuildSortAndFilter()
         {
             sideBar = new List<UITextButton>();
 
             // @Volatile :SearchBars
-            sideBar.Add(new UISearchBar(Language.GetText("Mods.MagicStoragePlus.SearchName").ToString(), 0.75f, 1.0f));
-            sideBar.Add(new UISearchBar(Language.GetText("Mods.MagicStoragePlus.SearchMod").ToString(), 0.75f, 1.0f));
+            sideBar.Add(new UISearchBar(Language.GetTextValue("Mods.MagicStoragePlus.SearchName"), 0.75f, 1.0f));
+            sideBar.Add(new UISearchBar(Language.GetTextValue("Mods.MagicStoragePlus.SearchMod"), 0.75f, 1.0f));
 
             var searchByName = sideBar[0] as UISearchBar;
             var searchByMod = sideBar[1] as UISearchBar;
@@ -50,9 +51,10 @@ namespace MagicStoragePlus
             searchByMod.OnTextChanged += () => { RefreshItems(); };
             searchByMod.OnTabPressed += () => { searchByName.Focus(); };
 
-            sideBar.Add(new UIDropDown("⇄ " + Language.GetText("Mods.MagicStoragePlus.Sort").ToString(), 0.75f, 1.0f));
-            sideBar.Add(new UIDropDown("∇ " + Language.GetText("Mods.MagicStoragePlus.Filter").ToString(), 0.75f, 1.0f));
+            sideBar.Add(new UIDropDown("⇄ " + Language.GetTextValue("Mods.MagicStoragePlus.Sort"), 0.75f, 1.0f));
+            sideBar.Add(new UIDropDown("∇ " + Language.GetTextValue("Mods.MagicStoragePlus.Filter"), 0.75f, 1.0f));
 
+            // @Volatile :SortAndFilter
             var sort = sideBar[2] as UIDropDown;
             var filter = sideBar[3] as UIDropDown;
 
@@ -68,20 +70,20 @@ namespace MagicStoragePlus
                 if (!rightClicked && mouseInBounds && sort.Focused) sort.Unfocus();
             };
 
-            sort.AddOption(new UITextButton("▦ " + Language.GetText("Mods.MagicStoragePlus.SortDefault").ToString(), 0.75f, 1.0f));
-            // sort.AddOption(new UITextButton("▩ " + Language.GetText("Mods.MagicStoragePlus.SortID").ToString(), 0.75f, 1.0f));
-            sort.AddOption(new UITextButton("▧ " + Language.GetText("Mods.MagicStoragePlus.SortName").ToString(), 0.75f, 1.0f));
-            sort.AddOption(new UITextButton("▨ " + Language.GetText("Mods.MagicStoragePlus.SortQuantity").ToString(), 0.75f, 1.0f));
+            sort.AddOption(new UITextButton("▦ " + Language.GetTextValue("Mods.MagicStoragePlus.SortDefault"), 0.75f, 1.0f));
+            // sort.AddOption(new UITextButton("▩ " + Language.GetText("Mods.MagicStoragePlus.SortID"), 0.75f, 1.0f));
+            sort.AddOption(new UITextButton("▧ " + Language.GetTextValue("Mods.MagicStoragePlus.SortName"), 0.75f, 1.0f));
+            sort.AddOption(new UITextButton("▨ " + Language.GetTextValue("Mods.MagicStoragePlus.SortQuantity"), 0.75f, 1.0f));
             foreach (var o in sort.Options)
                 o.Action += (bool rightClicked, bool mouseInBounds) => { if (!rightClicked && mouseInBounds) RefreshItems(); };
 
-            filter.AddOption(new UITextButton("∀ " + Language.GetText("Mods.MagicStoragePlus.FilterAll").ToString(), 0.75f, 1.0f));
-            filter.AddOption(new UITextButton("⚔ " + Language.GetText("Mods.MagicStoragePlus.FilterWeapons").ToString(), 0.75f, 1.0f));
-            filter.AddOption(new UITextButton("⛏ " + Language.GetText("Mods.MagicStoragePlus.FilterTools").ToString(), 0.75f, 1.0f));
-            filter.AddOption(new UITextButton("⛨ " + Language.GetText("Mods.MagicStoragePlus.FilterEquipment").ToString(), 0.75f, 1.0f));
-            filter.AddOption(new UITextButton("♁ " + Language.GetText("Mods.MagicStoragePlus.FilterPotions").ToString(), 0.75f, 1.0f));
-            filter.AddOption(new UITextButton("☐ " + Language.GetText("Mods.MagicStoragePlus.FilterPlaceables").ToString(), 0.75f, 1.0f));
-            filter.AddOption(new UITextButton("★ " + Language.GetText("Mods.MagicStoragePlus.FilterMisc").ToString(), 0.75f, 1.0f));
+            filter.AddOption(new UITextButton("∀ " + Language.GetTextValue("Mods.MagicStoragePlus.FilterAll"), 0.75f, 1.0f));
+            filter.AddOption(new UITextButton("⚔ " + Language.GetTextValue("Mods.MagicStoragePlus.FilterWeapons"), 0.75f, 1.0f));
+            filter.AddOption(new UITextButton("⛏ " + Language.GetTextValue("Mods.MagicStoragePlus.FilterTools"), 0.75f, 1.0f));
+            filter.AddOption(new UITextButton("⛨ " + Language.GetTextValue("Mods.MagicStoragePlus.FilterEquipment"), 0.75f, 1.0f));
+            filter.AddOption(new UITextButton("♁ " + Language.GetTextValue("Mods.MagicStoragePlus.FilterPotions"), 0.75f, 1.0f));
+            filter.AddOption(new UITextButton("☐ " + Language.GetTextValue("Mods.MagicStoragePlus.FilterPlaceables"), 0.75f, 1.0f));
+            filter.AddOption(new UITextButton("★ " + Language.GetTextValue("Mods.MagicStoragePlus.FilterMisc"), 0.75f, 1.0f));
             foreach (var o in filter.Options)
                 o.Action += (bool rightClicked, bool mouseInBounds) => { if (!rightClicked && mouseInBounds) RefreshItems(); };
         }
@@ -156,19 +158,30 @@ namespace MagicStoragePlus
             ResetSlotFocus();
         }
 
-        // @Speed: Don't call this every frame, but just when needed (e.g. RefreshItems())
+        public void Unload()
+        {
+            items = null;
+            slotZone = null;
+            bottomBar = null;
+            capacityText = null;
+            sideBar = null;
+        }
+
+        // @Speed: We are calling this every frame. Do we need to?
         public void UpdateUI()
         {
             int padding = 2;
 
-            // RebuildUI();
+            if (dirty)
+            {
+                RebuildUI();
+                dirty = false;
+            }
+
             float slotWidth = Main.inventoryBackTexture.Width * UI.InventoryScale;
             float slotHeight = Main.inventoryBackTexture.Height * UI.InventoryScale;
 
-            int craftingOffset = 0;
-            if (Crafting) craftingOffset = 22;
-
-            float panelLeft = 50 + craftingOffset;
+            float panelLeft = 72;
             float panelHeight = Main.screenHeight - Main.instance.invBottom - 40f;
             float innerPanelWidth = numColumns * (slotWidth + padding) + padding * 4;
 
@@ -177,7 +190,12 @@ namespace MagicStoragePlus
             if (Crafting && rows > 4) rows = 4;
 
             panelHeight = rows * (slotHeight + padding) + padding * 2;
-            UI.TrashSlotOffset = new Point16(-18 + craftingOffset, (int)panelHeight + 4);
+            if (Crafting)
+                UI.TrashSlotOffset = new Point16(4, (int)panelHeight);
+            else
+                UI.TrashSlotOffset = new Point16(4, (int)panelHeight + 7);
+            if (Main.recBigList)
+                UI.TrashSlotOffset = new Point16(3, 0);
 
             Left.Set(panelLeft, 0f);
             Top.Set(Main.instance.invBottom, 0f);
@@ -207,13 +225,13 @@ namespace MagicStoragePlus
                     int offset = 0;
                     if (i > 2)
                     {
-                        var sort = sideBar[2] as UIDropDown; // @Volatile
+                        var sort = sideBar[2] as UIDropDown; // @Volatile :SortAndFilter
                         if (sort.Focused)
                             offset += sort.OptionsY + sort.OptionDiffY * (sort.Options.Count - 1);
                     }
                     if (i > 3)
                     {
-                        var filter = sideBar[3] as UIDropDown; // @Volatile
+                        var filter = sideBar[3] as UIDropDown; // @Volatile :SortAndFilter
                         if (filter.Focused)
                             offset += filter.OptionsY + filter.OptionDiffY * (filter.Options.Count - 1);
                     }
@@ -250,8 +268,6 @@ namespace MagicStoragePlus
 
         public override void Update(GameTime gameTime)
         {
-            UpdateUI();
-
             if (UI.RightReleased) ResetSlotFocus();
 
             var searchByName = sideBar[0] as UISearchBar;
@@ -270,6 +286,8 @@ namespace MagicStoragePlus
                 player.showItemIcon = false;
                 UI.HideItemIconCache();
             }
+
+            UpdateUI();
         }
 
         public override void Draw(SpriteBatch spriteBatch)
@@ -294,8 +312,8 @@ namespace MagicStoragePlus
             string modFilter = "";
             if (searchByMod.Text != searchByMod.HintText) modFilter = searchByMod.Text;
 
-            var sort = sideBar[2] as UIDropDown;
-            var filter = sideBar[3] as UIDropDown;
+            var sort = sideBar[2] as UIDropDown; // @Volatile :SortAndFilter
+            var filter = sideBar[3] as UIDropDown; // @Volatile :SortAndFilter
 
             items.AddRange(Sorting.Items.FilterAndSort(heart.GetStoredItems(), (SortMode)sort.CurrentOption, (FilterMode)filter.CurrentOption, modFilter, nameFilter));
             items.ForEach(x => x.checkMat());
@@ -389,14 +407,16 @@ namespace MagicStoragePlus
 
         public static void DoWithdrawItemForCraft(Recipe self, ref Item item, ref int required)
         {
-            var su = MagicStoragePlus.Instance.StorageUI;
+            if (StoragePlayer.Get.StorageAccess.X < 0) return;
+
+            var instance = MagicStoragePlus.Instance.StorageUI;
 
             bool changed = false;
-            foreach (Item i in su.items)
+            foreach (Item i in instance.items)
             {
                 if (required <= 0)
                 {
-                    if (changed) su.RefreshItems();
+                    if (changed) instance.RefreshItems();
                     return;
                 }
 
@@ -407,7 +427,18 @@ namespace MagicStoragePlus
 
                     var request = i.Clone();
                     request.stack = count;
-                    request = DoWithdraw(request, false);
+
+                    TEStorageHeart heart = StoragePlayer.GetStorageHeart();
+                    if (Main.netMode == 0)
+                    {
+                        request = heart.TryWithdraw(request);
+                    }
+                    else
+                    {
+                        NetHelper.SendWithdraw(heart.ID, request, NetHelper.StorageOp.WithdrawJustRemove);
+                        request = new Item();
+                    }
+
                     if (!request.IsAir)
                     {
                         request.TurnToAir();
@@ -415,7 +446,7 @@ namespace MagicStoragePlus
                     }
                 }
             }
-            if (changed) su.RefreshItems();
+            if (changed) instance.RefreshItems();
         }
 
         static Item DoWithdraw(Item item, bool toInventory = false)
@@ -427,7 +458,8 @@ namespace MagicStoragePlus
             }
             else
             {
-                NetHelper.SendWithdraw(heart.ID, item, toInventory);
+                var type = toInventory ? NetHelper.StorageOp.WithdrawToInventory : NetHelper.StorageOp.Withdraw;
+                NetHelper.SendWithdraw(heart.ID, item, type);
                 return new Item();
             }
         }

@@ -58,7 +58,7 @@ namespace MagicStoragePlus.Items
             return true;
         }
 
-        private void OpenStorage(Player player)
+        void OpenStorage(Player player)
         {
             StoragePlayer modPlayer = player.GetModPlayer<StoragePlayer>();
             if (player.sign > -1)

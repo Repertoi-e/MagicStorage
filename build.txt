@@ -1,5 +1,5 @@
-author = Repertoire
-version = 0.1
+author = Repertoire & blushiemagic
+version = 0.2
 displayName = Magic Storage Plus
 homepage = https://forums.terraria.org/index.php?threads/magic-storage.56294/
 hideCode = false

@@ -17,7 +17,7 @@ namespace MagicStoragePlus
 
         public string HintText;
 
-        public bool Focused { get; private set; }
+        public bool Focused { get; set; }
 
         // Use this to filter certain characters or words
         public Func<string, bool> AllowTextEntered;

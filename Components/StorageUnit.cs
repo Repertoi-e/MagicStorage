@@ -93,7 +93,7 @@ namespace MagicStoragePlus.Components
             return base.NewRightClick(i, j);
         }
 
-        private bool TryUpgrade(int i, int j)
+        bool TryUpgrade(int i, int j)
         {
             Player player = Main.player[Main.myPlayer];
             Item item = player.inventory[player.selectedItem];
@@ -156,7 +156,7 @@ namespace MagicStoragePlus.Components
             return success;
         }
 
-        private void SetStyle(int i, int j, int style)
+        void SetStyle(int i, int j, int style)
         {
             Main.tile[i, j].frameY = (short)(36 * style);
             Main.tile[i + 1, j].frameY = (short)(36 * style);

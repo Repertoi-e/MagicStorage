@@ -54,6 +54,7 @@ namespace MagicStoragePlus.Sorting
         public static void Initialize()
         {
             if (initialized) return;
+            initialized = true;
 
             classes.Add(new DefaultSortClass(MeleeWeapon, CompareRarity));
             classes.Add(new DefaultSortClass(RangedWeapon, CompareRarity));
@@ -92,6 +93,11 @@ namespace MagicStoragePlus.Sorting
             classes.Add(new DefaultSortClass(Misc, CompareMisc));
             classes.Add(new DefaultSortClass(FrameImportantTile, CompareName));
             classes.Add(new DefaultSortClass(CommonTile, CompareName));
+        }
+
+        public static void Uninitialize()
+        {
+            classes.Clear();
         }
 
         static bool MeleeWeapon(Item item)
